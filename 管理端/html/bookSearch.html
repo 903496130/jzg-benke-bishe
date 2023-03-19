@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>图书查找</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+		<link rel="stylesheet" type="text/css" href="./static/css/layui.css" />
+		<!-- <link rel="stylesheet" type="text/css" href="static/css/mui.min.css" /> -->
+		<script src="./static/js/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<meta name="referrer" content="never">
+
+		<style type="text/css">
+			#book-content {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-wrap: wrap;
+			}
+		</style>
+
+		<style type="text/css">
+			body{
+				padding: 20px;
+			}
+
+			#content{
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: space-between;
+				align-items: center;
+			}
+			
+			.mui-active{
+				background-color: #007DDB;
+				color: white;
+			}
+			.mui-active a{
+				color: white;
+			}
+			
+			li{
+				display: inline-block;
+				border: 1px solid #007DDB;
+				padding:10px;
+				padding-left: 13px;
+				padding-right: 13px;
+				border-radius: 3px;
+				margin: 1px;
+				transition: .3s;
+
+			}
+			li:hover{
+				background-color: #007DDB;
+				color: white;
+			}
+			
+			.book {
+				position: relative;
+				width: 150px;
+				height: 200px;
+				overflow: hidden;
+				border: 5px;
+				box-shadow: #ababab 1px 1px 5px 1px;
+				transition: .3s;
+				display: inline-block;
+				margin: 5px;
+				animation: show .3s;
+			}
+
+			.book:hover {
+				transform: scale(1.05);
+				box-shadow: #79787b 1px 1px 5px 1px;
+			}
+
+			.book img {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				left: 0;
+				top: 0;
+				border: 5px;
+				background: url(static/img/nocover.png) no-repeat center;
+				background-size: 100% 100%;
+			}
+
+			.book span {
+				position: absolute;
+				z-index: 10;
+				bottom: 0;
+				left: 0;
+				color: white;
+				display: flex;
+				width: 100%;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
+				height: 50px;
+				background-color: rgba(0, 0, 0, .7);
+
+			}
+			
+			.action{
+				position: absolute;
+				z-index: 10;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 150px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-wrap: wrap;
+				background-color: rgba(0, 0, 0, .7);
+				transition: .3s;
+				transform: translateY(-150px);
+			}
+			
+			.action button{
+				display: block;
+				margin: 10px;
+			}
+
+			.layui-btn+.layui-btn{
+				/* margin-left: 0; */
+			}
+			
+			
+			@keyframes show{
+				0%{transform: translateX(1.1) translateY(0.9);}
+				50%{transform: translateX(0.9) translateY(1);}
+				100%{transform: translateX(1) translateY(1);}
+			}
+			
+		</style>
+
+
+		<script type="text/javascript">
+			var sc;
+			var total;
+			var page;
+			
+
+			function makePageChoose() {
+
+				$$("#foot").hide();
+
+
+				$$('html , body').animate({
+					scrollTop: 0
+				}, 'fast');
+				if (total % num == 0)
+					max = total / num
+				else
+					max = Math.floor(total / num) + 1;
+				start = 0;
+				end = 0;
+
+				$$("#search-info").html("关键字:" + keyWords + "&nbsp;&nbsp;&nbsp;第&nbsp;" + page + "&nbsp;/&nbsp;" + max +
+						'&nbsp;页') &
+
+					$$(".mui-pagination").html("");
+
+				if (page >= 2) {
+					$$(".mui-pagination").append('<li class="mui-previous"><a href="javascript:fresh(' + (page - 1) +
+						')">&laquo;</a></li>');
+				}
+
+				if (max <= 7) {
+					start = 1;
+					end = max;
+					console.log("mode1");
+				} else if (page > 3 && page < max - 3) {
+					start = page - 3;
+					end = page + 3;
+					console.log("mode2");
+				} else if (page >= 1 && page < 8) {
+					start = 1;
+					end = 8;
+					console.log("mode3");
+				} else if (i >= max - 3) {
+					start = max - 6;
+					end = max;
+					console.log("mode5");
+				} else {
+					start = page - 3;
+					end = page + 3;
+					console.log("mode4");
+				}
+
+				console.log(page, max, start, end);
+
+				for (i = start; i <= end; i++) {
+					if (i == page)
+						$$(".mui-pagination").append('<li class="mui-active"><a href="javascript:fresh(' + i + ')">' + i +
+							'</a></li>');
+					else
+						$$(".mui-pagination").append('<li class=""><a href="javascript:fresh(' + i + ')">' + i + '</a></li>');
+				}
+
+				if (page < max) {
+					$$(".mui-pagination").append('<li class="mui-previous"><a href="javascript:fresh(' + (page + 1) +
+						')">&raquo;</a></li>');
+
+				}
+
+				$$("#foot").show();
+				
+				setInterval(function(){
+					
+					
+					$$(".book").hover(function(){
+						$$(this).find(".action").css("transform","translateY(0px)");
+						
+					},function(){
+						$$(this).find(".action").css("transform","translateY(-150px)");
+						
+					})
+				},100);
+				
+				$$("li").hover(function(){
+					$$(this).find("a").css("color","white");
+					
+				},function(){
+					$$(this).find("a").css("color","black");
+					
+				})
+
+				
+			}
+
+
+			function fresh(pageNum) {
+				
+				var index = layer.load(2, {time: 10*1000,shade: [1, '#fff']});
+
+				mui.get('/book/search?keywords=' + keyWords + "&page=" + pageNum + "&num=" + num, {
+					"length": 20
+				}, function(data) {
+					sc.datas = data.data;
+					page = pageNum;
+					makePageChoose();
+					
+					layer.close(index);
+					// mui('body').pullRefresh().endPulldown();
+				}, 'json');
+
+			}
+
+			$$(window).ready(function() {
+
+				sc = new Vue({
+					el: '#content',
+					data: {
+						datas: []
+					}
+				});
+
+
+			})
+
+
+			function search() {
+				
+				
+
+				keyWords = $$("#keyword").val();
+				page = 1;
+				num = 21;
+				
+				if(keyWords == null || keyWords == ""){
+					layer.alert('请输入搜索内容', {icon: 2});
+					return;
+				}
+				var index = layer.load(2, {time: 10*1000,shade: [1, '#fff']});
+
+				mui.get('/book/search?keywords=' + keyWords + "&page=" + page +
+					"&num=" + num, {
+						"length": 20
+					},
+					function(data) {
+						sc.datas = data.data;
+						total = data.total;
+						makePageChoose();
+						layer.close(index);
+
+					}, 'json');
+					
+			}
+		</script>
+
+	</head>
+
+
+	<body>
+
+		<blockquote class="layui-elem-quote layui-text">
+			图书信息管理
+		</blockquote>
+
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body">
+				<form class="layui-form">
+					<div class="layui-form-item">
+
+						<label class="layui-form-label">关键字</label>
+						<div class="layui-input-block">
+							<input type="text" name="title" placeholder="请输入关键字" autocomplete="off" class="layui-input"
+								id="keyword">
+						</div>
+
+					</div>
+
+				</form>
+
+			</div>
+
+		</div>
+
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body" style="text-align: center;padding: 10px;">
+
+				<button type="button" class="layui-btn layui-btn-normal" onclick="search()">查询</button>
+
+			</div>
+
+		</div>
+
+		<div class="layui-card">
+			<div class="layui-card-header">数据展示</div>
+			<div class="layui-card-body">
+
+				<div id="content">
+
+
+
+						<div class="book" v-for="data in datas">
+							
+							<div class="action">
+								
+								<a target="_blank" :href="'/details?bid=' + data.id"><button type="button" class="layui-btn">查看信息</button></a>
+								<a target="_blank" :href="'/update?bid=' + data.id"><button type="button" class="layui-btn layui-btn-warm">修改信息</button>
+								</a>
+							</div>
+							
+							<img :src="data.cover">
+							<span>{{data.title}}</span>
+						</div>
+
+				
+
+
+				</div>
+
+			</div>
+		</div>
+
+		<div class="layui-card">
+			<div class="layui-card-body">
+
+				<div id="foot" style="text-align: center;">
+					<div class="mui-content-padded">
+						<ul class="mui-pagination">
+		
+							<li class="mui-previous mui-disabled">
+								<a href="#">
+									&laquo;
+								</a>
+							</li>
+		
+							<li class="mui-active">
+								<a href="javascript:fresh(10)">
+									1
+								</a>
+							</li>
+		
+							<li class="mui-next">
+								<a href="#">
+									&raquo;
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+		
+			</div>
+		  </div>
+
+	<div id="background">
+		<img id="background-img" src="./static/img/mt.jpeg" >
+	</div>
+	<style type="text/css">
+		#background{
+			width: 100vw;
+			height: 100vh;
+			position: fixed;
+			left: 0px;
+			top: 0px;
+			overflow: hidden;
+			z-index: -1;
+		}
+		#background-img{
+			width: 100%;
+			height: 100%;
+			filter: blur(10px);
+			transform: scale(1.2);
+		}
+	</style>
+
+
+
+	</body>
+
+
+</html>

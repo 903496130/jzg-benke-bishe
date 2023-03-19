@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>用户信息维护</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+		<link rel="stylesheet" type="text/css" href="./static/css/layui.css" />
+		<script src="./static/js/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	
+	<body>
+		
+		<blockquote class="layui-elem-quote layui-text">
+		  图书信息管理
+		</blockquote>
+		
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body">
+				<form class="layui-form">
+					<div class="layui-form-item">
+		
+						<label class="layui-form-label">ERP</label>
+						<div class="layui-input-inline">
+							<input type="text" name="title" placeholder="请输入ERP" autocomplete="off" class="layui-input"
+								id="erp">
+						</div>
+		
+						<label class="layui-form-label">邮箱地址</label>
+						<div class="layui-input-inline">
+							<input type="text" name="title" placeholder="请输入ERP" autocomplete="off" class="layui-input"
+								id="erp">
+						</div>
+						
+						<label class="layui-form-label">设备类型</label>
+						<div class="layui-input-inline">
+		
+							<select name="city" id="device_type">
+								<option value=""></option>
+								<option value="0">移动端</option>
+								<option value="1">Windows客户端</option>
+								<option value="2">MAC客户端</option>
+							</select>
+		
+						</div>
+		
+					</div>
+		
+				</form>
+		
+			</div>
+		
+		</div>
+		
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body" style="text-align: center;padding: 10px;">
+		
+				<button type="button" class="layui-btn layui-btn-normal" onclick="query()">查询</button>
+				<button type="button" class="layui-btn" onclick="showAddPersonInfoPage()">添加数据</button>
+		
+			</div>
+		
+		</div>
+		
+		<div class="layui-card">
+			<div class="layui-card-header">数据展示</div>
+			<div class="layui-card-body">
+		
+				<table id="demo" lay-filter="test"></table>
+		
+			</div>
+		</div>
+		
+		
+
+	</body>
+	
+	
+</html>

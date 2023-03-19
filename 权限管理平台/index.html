@@ -1,0 +1,211 @@
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+		<link rel="stylesheet" type="text/css" href="css/layui.css" />
+		<script src="./js/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+
+		<title>Element Plus demo</title>
+		<style type="text/css">
+			body {
+				overflow: hidden;
+				padding-left: 200px;
+				padding-top: 60px;
+			}
+
+			.layui-tab-item {
+				width: 100%;
+				height: calc(100% - 40px);
+			}
+
+			.layui-show {
+				width: 100%;
+			}
+
+			iframe {
+				border: 0;
+				height: 100%;
+				width: 100%;
+			}
+
+			.layui-tab {
+				position: absolute;
+				left: 200px;
+				right: 0px;
+				bottom: 0px;
+				top: 50px;
+			}
+
+			.layui-this {
+				color: #007AFF !important;
+			}
+
+			.layui-header {
+				position: fixed;
+				left: 0;
+				right: 0;
+				top: 0;
+				background-color: #393D49;
+			}
+
+			.layui-side {
+				top: 60px;
+			}
+
+			.layui-logo {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 200px;
+				height: 100%;
+				line-height: 60px;
+				text-align: center;
+				/* color: #009688;
+				 */
+				color: white;
+				font-size: 16px;
+			}
+		</style>
+
+
+		<script type="text/javascript">
+			var element = layui.element;
+
+			$(window).ready(function() {
+
+				$(".layui-nav-child-card").bind("click", function() {
+
+					name = $(this).text();
+					target = $(this).attr("source");
+					id = $(this).attr("child-id");
+					target = "http://www.baidu.com/baidu?word=" + name;
+
+					arr = $(".layui-tab-title li");
+					for (i = 0; i < arr.length; i++) {
+
+						if ($(arr[i]).attr("lay-id") == id) {
+							element.tabChange('demo', id); //切换到：用户管理
+							return;
+						}
+					}
+
+					element.tabAdd('demo', {
+						title: name,
+						content: '<iframe src="' + target + '" > </iframe>',
+						id: id //实际使用一般是规定好的id，这里以时间戳模拟下
+					});
+					element.tabChange('demo', id);
+
+				});
+
+			});
+
+
+			layui.use('element', function() {
+
+				var $ = layui.jquery,
+					element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+
+
+
+			});
+		</script>
+
+	</head>
+
+	<body>
+
+		<div class="layui-header">
+			<div class="layui-logo">邮件MFA管理系统</div>
+			<!-- 头部区域（可配合layui 已有的水平导航） -->
+			<ul class="layui-nav layui-layout-right">
+				<li class="layui-nav-item" style="">
+					<a href="javascript:;">
+						<img src="//tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg"
+							class="layui-nav-img">
+						tester
+						<span class="layui-nav-more"></span></a>
+					<dl class="layui-nav-child layui-anim layui-anim-upbit">
+						<dd><a href="">set 1</a></dd>
+						<dd><a href="">set 2</a></dd>
+					</dl>
+				</li>
+				<li class="layui-nav-item" style=""><a href="">Sign out</a></li>
+				<span class="layui-nav-bar" style="left: 139.403px; top: 55px; width: 0px; opacity: 0;"></span>
+			</ul>
+		</div>
+
+
+		<div class="layui-side layui-bg-black">
+			<div class="layui-side-scroll">
+				<ul class="layui-nav layui-nav-tree site-demo-nav" lay-shrink="all">
+
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="10" source="http://www.baidu.com/">首页</a>
+					</li>
+					
+					
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="21" source="http://www.baidu.com/">客户端黑名单</a>
+					</li>
+
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="22" source="http://www.baidu.com/">客户端白名单</a>
+					</li>
+					
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="23" source="http://www.baidu.com/">移动端黑名单</a>
+					</li>
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="24" source="http://www.baidu.com/">移动端白名单</a>
+					</li>
+					
+					
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="31" source="http://www.baidu.com/">客户端验证时间设置</a>
+					</li>
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="32" source="http://www.baidu.com/">激活通知方式</a>
+					</li>
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="33" source="http://www.baidu.com/">员工关联关系表</a>
+					</li>
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="34" source="http://www.baidu.com/">消息通知内容</a>
+					</li>
+					
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="35" source="http://www.baidu.com/">日志查询</a>
+					</li>
+					
+					<li class="layui-nav-item" style="">
+						<a href="#" class="layui-nav-child-card" child-id="36" source="http://www.baidu.com/">管理员列表</a>
+					</li>
+
+
+			</div>
+		</div>
+
+		<div id="" style="height: 30px;">
+
+		</div>
+
+		<div class="layui-tab" lay-filter="demo" lay-allowclose="true">
+
+			<ul class="layui-tab-title">
+				<li class="layui-this" lay-id="10">首页</li>
+			</ul>
+
+			<div class="layui-tab-content" style="padding: 0;">
+				<div class="layui-tab-item layui-show">
+					<iframe src="/"></iframe>
+				</div>
+
+			</div>
+		</div>
+
+
+	</body>
+
+</html>

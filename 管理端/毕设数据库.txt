@@ -1,0 +1,91 @@
+#书籍信息表
+create table book(
+    id int primary key,
+    title varchar(200) not null,
+    author varchar(100) not null,
+    introduction varchar(1000) not null,
+    type varchar(100) not null,
+    year varchar(4) not null,
+    json varchar(1000) not null,
+    time varchar(30) not null,
+    cover varchar(1000) default '',
+    isbn varchar(200) not null,
+    marc varchar(200) not null,
+    publisher varchar(200) not null
+);
+
+create table user(
+    username int not null primary key,
+    password varchar(30) not null,
+    nickname varchar(12) not null,
+    sign varchar(30) not null
+);
+
+#评论
+create table comment(
+    bid int not null,
+    uid int not null,
+    pid int not null,
+    fid int,
+    content varchar(300) not null,
+    time varchar(30) not null,
+    zan int default 0
+);
+
+#收藏
+create table sc(
+    uid int not null,
+    bid int not null,
+    date bigint not null
+);
+
+#评分
+create table pf(
+    uid int not null,
+    bid int not null,
+    number int not null
+);
+
+
+create table gg(
+    title varchar(30) not null,
+    content varchar(1000) not null,
+    date varchar(50) not null
+);
+
+#借阅情况
+create table store(
+    bid int,
+    putPlace varchar(100),
+    total int
+)
+
+
+
+
+#借阅
+create table jy(
+    uid int,
+    bid bigint,
+    storeName varchar(20) not null,
+    startDate date not null,
+    endDate date not null,
+    borrowDate date,
+    backDate date,
+    status varchar(20) not null,
+    primary key(uid,bid)
+)
+
+
+
+#用户行为表
+create table behavior(
+    uid int,
+    bid bigint,
+    move int comment "1-借阅，2-收藏，3-评论",
+    num int comment "分数"
+)
+
+
+
+

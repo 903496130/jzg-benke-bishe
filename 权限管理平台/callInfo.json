@@ -1,0 +1,48 @@
+{
+	"caller_show": "13018048446",
+	"alerting_time": "2021-05-08 14:13:19",
+	"called": "18141922142",
+	"recorder_id": "202105081413183341830722212",
+	"caller_area": "010 北京",
+	"sign": "fd1094723dcb67b0b7fe6842ac69165f",
+	"begin_time": "2021-05-08 14:13:18",
+	"bill_duration": 1,
+	"called_area": "010 北京",
+	"corp_key": "2390901845578772",
+	"call_duration": 1,
+	"call_cost": "0.0",
+	"extend": "{\"callout_time\":\"2021-05-08 14:13:19\",\"hangup\":2}",
+	"bind_id": "subIdNzUvUdyphNUA0n87EjUu6UZ19o0mk2QWSwI1TFgO",
+	"caller": "17610862037",
+	"called_show": "13018048446",
+	"connect_time": "2021-05-08 14:13:28",
+	"record_file_url": "",
+	"call_result": "ANSWERED",
+	"ts": "1620454409",
+	"release_time": "2021-05-08 14:13:29"
+}
+
+{
+	"caller_show": "13018048446",
+	"alerting_time": "2021-05-08 15:08:49",
+	"called": "18141922142",
+	"recorder_id": "202105081508483818588623149",
+	"caller_area": "010 北京",
+	"sign": "cb0b1c14b06ecce76bcb6df30a3c0649",
+	"begin_time": "2021-05-08 15:08:48",
+	"bill_duration": 12,
+	"called_area": "010 北京",
+	"corp_key": "2390901845578772",
+	"call_duration": 12,
+	"call_cost": "0.0",
+	"extend": "{\"callout_time\":\"2021-05-08 15:08:48\",\"hangup\":2}",
+	"bind_id": "subIdXPA4z7uAf47V0PcJSSWO4SflcHVF4rpHGid71U3K",
+	"caller": "17610862037",
+	"called_show": "13018048446",
+	"connect_time": "2021-05-08 15:08:54",
+	"record_file_url": "http://reczj.1ketong.com:8090/audio26202/6916/20210508/202105081508483818588623149.mp3",
+	"call_result": "ANSWERED",
+	"ts": "1620457746",
+	"release_time": "2021-05-08 15:09:06"
+}
+

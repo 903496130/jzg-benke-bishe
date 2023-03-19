@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		
+		<title>详细信息</title>
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<script src="../js/loading.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/loading.css" />
+		<script type="text/javascript">
+			var sc;
+
+			$(window).ready(function() {
+
+			});
+
+
+		</script>
+
+		<style type="text/css">
+			.back-icon {
+				width: 30px;
+				height: 30px;
+				position: absolute;
+				left: 0;
+				top: 0;
+				color: white;
+
+			}
+
+			.book-info {
+				height: 230px;
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			.book-info-cover-box {
+				display: inline-block;
+				width: 45%;
+				height: 230px;
+				overflow: hidden;
+				padding-top: 10%;
+				padding-bottom: 10%;
+				padding-left: 5%;
+				padding-right: 5%;
+			}
+
+			.book-info-cover-box img {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: url(../images/index/book.png) no-repeat center;
+				background-size: 100% 100%;
+			}
+
+			.book-info-text {
+				display: inline-block;
+				width: 55%;
+				height: 230px;
+				padding-top: 10%;
+				padding-bottom: 5%;
+			}
+
+			.book-info-text span {
+				display: block;
+				font-size: 13px;
+			}
+
+			.book-info-text-title {
+				font-size: 16px !important;
+				margin-bottom: 5px;
+				font-weight: 600;
+
+			}
+
+			.star {
+				width: 20px;
+			}
+
+			.mui-btn-block {
+				width: 30%;
+				display: inline-block;
+				margin-bottom: 0;
+				margin-left: 3px;
+				margin-right: 3px;
+			}
+
+			.comment-card {
+				background-color: white;
+				padding: 20px;
+				border: 1px solid #cde5d0;
+				border-radius: 2px;
+				overflow: hidden;
+			}
+
+			textarea {
+				border: 1px solid #c9cad0;
+				border-radius: 10px;
+				margin: 5%;
+				width: 90%;
+				background-color: #f6f9ff;
+			}
+		</style>
+
+
+	</head>
+	<body>
+
+		<div class="title-bar-block"></div>
+
+		<div class="title_bar" style="background-color: white;opacity: 1!important;">
+			<a class="mui-icon mui-icon-back mui-action-back title-bar-a" style="left: 10px;"></a>
+			逾期记录
+		</div>
+
+		<div id="no-data" style="text-align: center;width: 100%;position: absolute;top: 300px;">
+			<img src="../images/nodata.png" style="width: 250px;height: auto">
+			<h4>这里空空如也～</h4>
+		</div>
+		
+		<div class="title-bar-block">
+		
+		</div>
+		
+
+	</body>
+</html>

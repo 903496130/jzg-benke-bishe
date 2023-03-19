@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>借阅历史</title>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<link rel="stylesheet" type="text/css" href="../css/bookCard.css" />
+		
+		<script type="text/javascript">
+			var list;
+			var uid = localStorage.getItem("uid");
+			mui.init({
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function() {
+							
+							
+							uid = uid = localStorage.getItem("uid");
+							mui.get('http://39.106.51.168:8080/jy/list?uid=' + uid, {
+								"length": 20
+							}, function(data) {
+					
+								list.infos = data.data;
+								list.show = true;
+								mui('body').pullRefresh().endPulldown();
+								
+							}, 'json');
+							
+
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					}
+				}
+			});
+			mui.ready(function() {
+
+			});
+			$(window).ready(function() {
+				list = new Vue({
+					el: '#content',
+					data: {
+						show: false,
+						infos: []
+					}
+				});
+
+			});
+			
+			
+			function showDetailPage(id) {
+				detailView = mui.openWindow({
+					url: "./book_details.html",
+					extras: {
+						'bid': id
+					}
+				})
+				console.log(id)
+				detailView.show();
+			}
+		</script>
+
+		<style type="text/css">
+
+
+
+		</style>
+	</head>
+
+
+	<body>
+		<div class="title-bar-block">
+
+		</div>
+
+		<div class="title_bar" style="background-color: white;">
+			借阅历史
+		</div>
+
+		<div id="content" v-if="show">
+			<div class="mui-card" v-for="info in infos">
+				
+				<div class="mui-content book-info" style="background-color: white;" :onclick="'showDetailPage(' + info.id + ')'">
+					<span class="book-info-cover-box">
+						<img :src="info.cover" class="book-info-cover-box-pic">
+					</span>
+					
+					<span class="book-info-text" id="bookInfo-head">
+						<span class="book-info-text-title">{{info.title}}</span>
+						<span>作者：{{info.author}}</span>
+						<span>年份：{{info.year}}</span>
+						<span>分类：{{info.type}}</span>
+						<span>出版社：{{info.publisher}}</span>
+						<span>isbn：{{info.isbn}}</span>
+					</span>
+				</div>
+
+				<div class="mui-card-footer">
+					<a href=""></a>
+					<a href=""></a>
+					<h5>当前状态：{{info.status}}</h5>
+				</div>
+				
+				
+			</div>
+
+		</div>
+
+		<div class="title-bar-block">
+
+		</div>
+
+	</body>
+
+
+</html>

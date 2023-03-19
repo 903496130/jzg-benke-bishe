@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>公告管理</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+		<link rel="stylesheet" type="text/css" href="./static/css/layui.css" />
+		<script src="./static/js/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			body {
+				padding: 20px;
+		</style>
+
+		<script type="text/javascript">
+			var gg;
+
+			function addGG() {
+				title = $$("#title").val();
+				content = $$("#content").val();
+				if (title == "" || content == "") {
+
+					layer.alert('请输入标题/内容', {
+						icon: 2
+					});
+				}
+
+				mui.get("/gg/add", {
+						content: content,
+						title: title
+					},
+					function(data) {
+						layer.alert(data.msg, {
+							icon: 1
+						});
+						fresh();
+					}, 'json');
+				
+			}
+
+			function clearGG() {
+				$$("#title").val("");
+				$$("#content").val("");
+					
+			}
+
+			function deleteGG(id) {
+
+				layer.confirm('确认要删除吗？', {
+					btn: ['确定', '取消'] //按钮
+				}, function(index) {
+					layer.close(index);
+					mui.get("/gg/remove", {
+							id: id
+						},
+						function(data) {
+							fresh();
+						}, 'json');
+					
+				});
+
+			}
+
+
+
+			function fresh() {
+				gg.show = false;
+				mui.get("/system/gg", {},
+					function(data) {
+						gg.datas = data.data;
+						if (data.data.length != 0) {
+							gg.show = true;
+						}
+					}, 'json');
+			}
+
+			$$(window).ready(function() {
+
+				gg = new Vue({
+					el: '#gg',
+					data: {
+						datas: [],
+						show: false
+					}
+				});
+				
+				
+				fresh();
+
+
+
+			})
+		</script>
+
+	</head>
+
+
+	<body>
+
+		<blockquote class="layui-elem-quote layui-text">
+			公告发布
+		</blockquote>
+
+
+		<div class="layui-card">
+			<div class="layui-card-header">内容编辑</div>
+			<div class="layui-card-body">
+				<form class="layui-form">
+
+					<input id="title" type="text" name="title" placeholder="请输入标题" autocomplete="off"
+						class="layui-input" id="keyword">
+					<br>
+					<div class="layui-form-item">
+
+						<div class="layui-form-item layui-form-text">
+							<textarea id="content" placeholder="请输入公告内容" required="" lay-verify="required"
+								class="layui-textarea"></textarea>
+						</div>
+
+					</div>
+
+				</form>
+
+			</div>
+
+		</div>
+
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body" style="text-align: center;padding: 10px;">
+
+				<button type="button" class="layui-btn layui-btn-normal" onclick="addGG()">发布</button>
+				<button type="button" class="layui-btn" onclick="clearGG()">清空</button>
+
+
+			</div>
+
+		</div>
+
+		<div class="layui-card" id="gg" v-if="show">
+			<div class="layui-card-header">历史公告</div>
+			<div class="layui-card-body" style="background-color: #DDDDDD;">
+
+				<div class="layui-card" v-for="data in datas">
+					<div class="layui-card-header">
+						<span style="font-size: 16px;">{{data.title}} </span>
+						<span style="float: right;color: #565656;">发布于{{data.date}}</span>
+
+					</div>
+					<div class="layui-card-body" v-html="data.content">
+					
+					</div>
+
+					<div class="layui-card-header" style="text-align: right;">
+						<a :onclick="'deleteGG(' + data.id +')'" style="color: #01AAED;">删除</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div id="background">
+			<img id="background-img" src="./static/img/mt.jpeg">
+		</div>
+		<style type="text/css">
+			#background {
+				width: 100vw;
+				height: 100vh;
+				position: fixed;
+				left: 0px;
+				top: 0px;
+				overflow: hidden;
+				z-index: -1;
+			}
+
+			#background-img {
+				width: 100%;
+				height: 100%;
+				filter: blur(10px);
+				transform: scale(1.2);
+			}
+		</style>
+
+	</body>
+
+
+</html>

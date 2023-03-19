@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>详细信息</title>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<script src="../js/loading.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/loading.css" />
+		<link rel="stylesheet" type="text/css" href="../css/bookCard.css" />
+		<meta name="referrer" content="never">
+		<script type="text/javascript">
+			var id;
+			var pinglun;
+			var info;
+
+			mui.init({
+				beforeback: function() {
+					plus.navigator.setStatusBarStyle("light"); //设置状态栏样式
+					plus.navigator.setStatusBarBackground('#426ab3'); //设置状态栏的颜色	
+					return true;
+				},
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function() {
+
+							mui.get('http://39.106.51.168:8080/book/info?id=' + id, {
+								"length": 20
+							}, function(data) {
+								info.info = data.data;
+							}, 'json');
+
+							mui.get('http://39.106.51.168:8080/book/getpl?id=' + id, {
+								"length": 20
+							}, function(data) {
+								pinglun.info = data.data;
+							}, 'json');
+
+							mui('body').pullRefresh().endPulldown();
+							hideLoading();
+
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					}
+				}
+			});
+			mui.ready(function() {
+				var self = plus.webview.currentWebview();
+				id = self.bid;
+				console.log(id);
+
+			});
+			$(window).ready(function() {
+				showLoading();
+				pinglun = new Vue({
+					el: '#pl',
+					data: {
+						show: false,
+						info: []
+					}
+				});
+
+				info = new Vue({
+					el: '#bookInfo',
+					data: {
+						show: false,
+						info: []
+					}
+				});
+
+				$(".search-tag").bind("click", function() {
+
+					val = $(this).text() || $(this).val();
+					console.log(val);
+					detailView = mui.openWindow({
+						url: "/html/search.html",
+						extras: {
+							'keyWords': val,
+							createNew: true
+						}
+					});
+				})
+
+
+
+			});
+
+			function freshComment() {
+				mui.get('http://39.106.51.168:8080/book/getpl?id=' + id, {
+					"length": 20
+				}, function(data) {
+					pinglun.info = data.data;
+				}, 'json');
+			}
+
+
+			function addComment() {
+				content = $("textarea").val();
+				uid = localStorage.getItem("uid");
+				console.log(content.uid);
+
+
+				if (content == "" || content == null) {
+					mui.toast("请检查输入", {
+						duration: 'long',
+						type: 'div'
+					});
+					return;
+				}
+
+				mui.get('http://39.106.51.168:8080/book/addpl?bid=' + id + '&uid=' + uid + "&content=" + content, {}, function(
+					data) {
+					mui.toast(data.msg, {
+						duration: 'long',
+						type: 'div'
+					});
+
+					$("textarea").val("");
+					freshComment();
+
+
+				}, 'json');
+
+
+			}
+
+			function clearInput() {
+				$("textarea").val("");
+			}
+
+			function pingfen(score) {
+				console.log(score);
+				uid = localStorage.getItem("uid");
+				mui.get('http://39.106.51.168:8080/book/pingfen?bid=' + id + '&uid=' + uid + "&star=" + score, {}, function(
+					data) {
+					mui.toast(data.msg, {
+						duration: 'long',
+						type: 'div'
+					});
+
+				}, 'json');
+			}
+
+			function scAdd() {
+				uid = localStorage.getItem("uid");
+				mui.get('http://39.106.51.168:8080/sc/add?bid=' + id + '&uid=' + uid, {}, function(
+					data) {
+					mui.toast(data.msg, {
+						duration: 'long',
+						type: 'div'
+					});
+				}, 'json');
+			}
+
+			function goBorrow() {
+				detailView = mui.openWindow({
+					url: "./borrow.html",
+					extras: {
+						'bid': id
+					}
+				})
+				detailView.show();
+			}
+
+			function search(keyWord) {
+
+				detailView = mui.openWindow({
+					url: "/html/search.html",
+					extras: {
+						'keyWords': keyWords
+					}
+				});
+
+
+			}
+		</script>
+		<style type="text/css">
+			.search-tag {
+				display: inline-block;
+				color: #007AFF;
+			}
+
+			.star {
+				width: 20px;
+			}
+
+			.mui-btn-block {
+				width: 30%;
+				display: inline-block;
+				margin-bottom: 0;
+				margin-left: 3px;
+				margin-right: 3px;
+			}
+
+			.comment-card {
+				background-color: white;
+				padding: 20px;
+				border: 1px solid #cde5d0;
+				border-radius: 2px;
+				overflow: hidden;
+			}
+
+			textarea {
+				border: 1px solid #c9cad0;
+				border-radius: 10px;
+				margin: 5%;
+				width: 90%;
+				background-color: #f6f9ff;
+			}
+		</style>
+
+	</head>
+
+	<body>
+
+		<div class="title-bar-block">
+
+		</div>
+
+		<div class="title_bar" style="background-color: white;opacity: 1!important;">
+			<a class="mui-icon mui-icon-back mui-action-back title-bar-a" style="left: 10px;"></a>
+			书籍详情页
+		</div>
+
+		<div id="bookInfo">
+
+			<div class="book-info mui-card">
+
+				<span class="book-info-cover-box">
+					<img :src="info.cover" class="book-info-cover-box-pic">
+				</span>
+
+				<span class="book-info-text" id="bookInfo-head">
+					<span class="book-info-text-title">{{info.title}}</span>
+					<span>作者：<font class="search-tag">{{info.author}}</font></span>
+					<span>年份：<font class="search-tag">{{info.year}}</font></span>
+					<span>分类：<font class="search-tag">{{info.type}}</font></span>
+					<span>出版社：<font class="search-tag">{{info.publisher}}</font></span>
+					<span>isbn：{{info.isbn}}</span>
+				</span>
+			</div>
+
+			<div class="mui-card">
+				<div class="mui-card-header">简介</div>
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner" v-html="info.introduction">
+
+					</div>
+				</div>
+			</div>
+
+			<div class="mui-card">
+				<div class="mui-card-header">评分 - {{info.pfmsg}}</div>
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner" style="text-align: center;">
+						<img src="../images/detail/star.png" v-for="n in info.pf" class="star">
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="mui-card">
+			<div class="mui-card-content">
+				<div class="mui-card-content-inner" style="text-align: center;">
+
+					<button type="button" class="mui-btn mui-btn-primary mui-btn-block" onclick="goBorrow()">
+						<img src="../images/detail/borrow.png" style="width: 15px;height: 15px;"> 借阅
+					</button>
+					<button type="button" class="mui-btn mui-btn-royal mui-btn-block" onclick="scAdd()">
+						<img src="../images/detail/sc.png" style="width: 15px;height: 15px;"> 收藏
+					</button>
+
+
+					<a href="#popover" class="mui-btn mui-btn-warning mui-btn-block">
+						<img src="../images/detail/pf.png" style="width: 15px;height: 15px;">
+						评分
+					</a>
+
+				</div>
+			</div>
+		</div>
+
+		<div class="mui-card">
+			<div class="mui-card-header">随笔</div>
+			<div class="mui-card-content">
+				<textarea rows="3" cols="10"></textarea>
+			</div>
+
+			<div class="mui-card-footer">
+				<button type="button" class="mui-btn" onclick="clearInput()">清空</button>
+				<button type="button" onclick="addComment()" class="mui-btn mui-btn-danger"
+					style="float: right;width: 100px;">发布</button>
+
+			</div>
+		</div>
+
+
+		<div class="mui-card" id="pl">
+			<div class="mui-card-header">查看评论</div>
+			<div class="mui-card-content">
+
+				<div class="comment-card" v-for="pl in info">
+
+					<div class="mui-card-header mui-card-media">
+						<img :src="pl.head">
+						<div class="mui-media-body">
+							{{pl.nickname}}
+							<p>发表于 {{pl.date}}</p>
+						</div>
+					</div>
+
+					<div class="mui-card-content">
+						<div class="mui-card-content-inner">
+							{{pl.content}}
+						</div>
+					</div>
+
+					<div class="mui-card-footer">
+						<a class="mui-card-link"></a>
+						<a class="mui-card-link"></a>
+						<!-- <a class="mui-card-link">点赞({{pl.zan}})</a> -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="popover" class="mui-popover">
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<a href="#" onclick="pingfen(1)">
+						<img src="../images/detail/star.png" class="star"> - 一星评价
+					</a>
+				</li>
+
+				<li class="mui-table-view-cell">
+					<a href="#" onclick="pingfen(2)">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						- 二星评价
+					</a>
+				</li>
+
+				<li class="mui-table-view-cell">
+					<a href="#" onclick="pingfen(3)">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						- 三星评价
+					</a>
+				</li>
+
+				<li class="mui-table-view-cell">
+					<a href="#" onclick="pingfen(4)">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						- 四星评价
+					</a>
+				</li>
+
+				<li class="mui-table-view-cell">
+					<a href="#" onclick="pingfen(5)">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						<img src="../images/detail/star.png" class="star">
+						- 五星评价
+					</a>
+				</li>
+
+			</ul>
+		</div>
+
+
+
+
+
+
+
+	</body>
+
+
+</html>

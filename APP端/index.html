@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>首页</title>
+		<script src="js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/mui.min.js"></script>
+		<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/mine.css" />
+		<style>
+			.mui-slider {
+				height: 200px;
+			}
+
+			.mui-slider img {
+				height: 200px;
+			}
+		</style>
+
+		<script type="text/javascript">
+			var bookList;
+
+			mui.init({
+
+				beforeback: function() {
+					plus.navigator.setStatusBarStyle("light"); //设置状态栏样式
+					plus.navigator.setStatusBarBackground('#426ab3'); //设置状态栏的颜色	
+					return true;
+				},
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function() {
+							
+							uid = localStorage.getItem("uid");
+							mui.get('http://39.106.51.168:8080/tj/book', {
+								uid:uid
+							}, function(data) {
+								bookList.books = data;
+								mui('body').pullRefresh().endPulldown();
+
+							}, 'json');
+							
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					},
+					up: {
+						height: 80, //可选.默认50.触发上拉加载拖动距离
+						auto: false, //可选,默认false.自动上拉加载一次
+						contentrefresh: "正在加载...", //可选，正在加载状态时，上拉加载控件上显示的标题内容
+						contentnomore: '没有更多数据了', //可选，请求完毕若没有更多数据时显示的提醒内容；
+						callback: function() {
+
+							uid = localStorage.getItem("uid");
+							mui.get('http://39.106.51.168:8080/tj/book', {
+								uid:uid
+							}, function(data) {
+								bookList.books = bookList.books.concat(data);
+								mui('body').pullRefresh().endPullupToRefresh();
+							}, 'json');
+						}
+					}
+				}
+			});
+
+			mui.ready(function() {
+				plus.navigator.setStatusBarStyle("light"); //设置状态栏样式
+				plus.navigator.setStatusBarBackground('#426ab3'); //设置状态栏的颜色
+
+				mui.on("back", "body", function() {
+					plus.navigator.setStatusBarStyle("light"); //设置状态栏样式
+					plus.navigator.setStatusBarBackground('#426ab3'); //设置状态栏的颜色	
+				});
+
+			});
+
+			function search() {
+				keyWords = $("#search-input").val();
+
+				if (keyWords == null || keyWords == "") {
+					mui.toast("请输入搜索内容", {
+						duration: 'long',
+						type: 'div'
+					});
+					return;
+				}
+
+				detailView = mui.openWindow({
+					url: "/html/search.html",
+					extras: {
+						'keyWords': keyWords
+					}
+				});
+
+
+			}
+
+			function login() {
+				console.log("gonna to login");
+				detailView = mui.openWindow({
+					url: "./html/login.html",
+				})
+
+				detailView.show();
+			}
+
+			$(window).ready(function() {
+
+				var gallery = mui('.mui-slider');
+				gallery.slider({
+					interval: 5000 //自动轮播周期，若为0则不自动播放，默认为0；
+				});
+
+				bookList = new Vue({
+					el: '.book-list',
+					data: {
+						seen: true,
+						books: []
+					}
+				});
+
+				$(".mui-table-view-cell").on("click", function() {
+					console.log(123);
+				});
+
+				uid = localStorage.getItem("uid");
+				console.log(uid + "")
+
+				if (uid == null || uid == "null") {
+					login();
+				}
+
+			});
+
+			mui.plusReady(function() {
+				var wv = plus.webview.currentWebview();
+				// 关闭侧滑返回功能
+				wv.setStyle({
+					'popGesture': 'none'
+				});
+			});
+
+
+			function showDetailPage(id) {
+
+				detailView = mui.openWindow({
+					url: "/html/book_details.html",
+					extras: {
+						'bid': id
+					}
+				})
+				console.log(id);
+				detailView.show();
+			}
+
+			function showAnnouncement() {
+				plus.webview.open('html/announcement.html', 'new', {}, 'slide-in-right', 200);
+
+			}
+
+			function showLastUpdateBooksList() {
+				plus.webview.open('html/last_update_books.html', 'new', {}, 'slide-in-right', 200);
+
+
+			}
+
+			function showBookList() {
+				plus.webview.open('html/userTj.html', 'new', {}, 'slide-in-right', 200);
+
+			}
+		</script>
+	</head>
+
+	<body>
+		<div class="title-bar-block">
+
+		</div>
+
+		<div class="title_bar">
+			<div class="search_bar">
+				<input type="text" style="color: black;" class="search_bar_input" id="search-input" placeholder="搜索" />
+				<span class="search_bar_button" onclick="search()" />
+			</div>
+		</div>
+
+		<div class="mui-card">
+			<div class="mui-slider">
+				<div class="mui-slider-group mui-slider-loop">
+					<!--支持循环，需要重复图片节点-->
+					<div class="mui-slider-item mui-slider-item-duplicate"><a href="#"><img
+								src="images/pics/lb3.jpg" /></a></div>
+					<div class="mui-slider-item"><a href="#"><img src="images/pics/lb1.jpg" /></a></div>
+					<div class="mui-slider-item"><a href="#"><img src="images/pics/lb2.jpg" /></a></div>
+					<div class="mui-slider-item"><a href="#"><img src="images/pics/lb3.jpg" /></a></div>
+					<!--支持循环，需要重复图片节点-->
+					<div class="mui-slider-item mui-slider-item-duplicate"><a href="#"><img
+								src="images/pics/lb1.jpg" /></a></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="mui-card">
+			<div class="mui-card-content" style="position: relative;">
+
+				<button type="button" class="index-last-update" onclick="showLastUpdateBooksList()">
+					<img class="index-button-icon" src="images/index/zj.png">
+					<span>新书速递</span>
+				</button>
+				<button type="button" class="index-announcement" onclick="showAnnouncement()">
+					<img class="index-button-icon" src="images/index/gg.png">
+					<span>服务公告</span>
+				</button>
+				<button type="button" class="index-right-button" style="background-color: #DD524D;"
+					onclick="showBookList()">
+					<img class="index-button-icon" src="images/detail/sc.png">
+					<span>TA们在读</span>
+				</button>
+
+			</div>
+
+		</div>
+
+		<div class="mui-card">
+			<div class="mui-card-header mui-card-media">
+				<img src="images/index/lb.png">
+				<div class="mui-media-body">
+					猜你喜欢
+					<p>根据你的浏览记录进行推荐</p>
+				</div>
+			</div>
+			<div class="mui-card-content book-list">
+
+				<ul class="mui-table-view book-list-child" v-for="book of books"
+					:onclick="'showDetailPage(' + book.id + ')'" :bookid="book.id">
+					<li class="mui-table-view-cell mui-media">
+						<img class="mui-media-object mui-pull-left" src="images/index/book.png">
+						<div class=" mui-media-body">
+							{{book.title}}
+							<p class="mui-ellipsis">
+								{{book.type}} - {{book.publisher}}
+							</p>
+						</div>
+					</li>
+
+				</ul>
+
+			</div>
+		</div>
+
+		<div class="title-bar-block" id="list-content">
+
+		</div>
+
+
+	</body>
+
+</html>
+
+<script src="js/util.js"></script>
+<script type="text/javascript">
+	(function() {
+		mui.init({
+			swipeBack: true //启用右滑关闭功能
+		});
+		mui.plusReady(function() {
+			var self = plus.webview.currentWebview(),
+				leftPos = Math.ceil((window.innerWidth - 60) / 2); // 设置凸起大图标为水平居中
+
+			/**	
+			 * drawNativeIcon 绘制带边框的半圆，
+			 * 实现原理：
+			 *   id为bg的tag 创建带边框的圆
+			 *   id为bg2的tag 创建白色矩形遮住圆下半部分，只显示凸起带边框部分
+			 * 	 id为iconBg的红色背景图
+			 *   id为icon的字体图标
+			 *   注意创建先后顺序，创建越晚的层级越高
+			 */
+			var drawNativeIcon = util.drawNative('icon', {
+				bottom: '15px',
+				left: leftPos + 'px',
+				width: '60px',
+				height: '60px'
+			}, [{
+				tag: 'rect',
+				id: 'bg',
+				position: {
+					top: '1px',
+					left: '0px',
+					width: '100%',
+					height: '100%'
+				},
+				rectStyles: {
+					color: '#fff',
+					radius: '50%',
+					borderColor: '#ccc',
+					borderWidth: '1px'
+				}
+			}, {
+				tag: 'rect',
+				id: 'bg2',
+				position: {
+					bottom: '-10.5px',
+					left: '0px',
+					width: '100%',
+					height: '45px'
+				},
+				rectStyles: {
+					color: '#fff'
+				}
+			}, {
+				tag: 'rect',
+				id: 'iconBg',
+				position: {
+					top: '5px',
+					left: '5px',
+					width: '50px',
+					height: '50px'
+				},
+				rectStyles: {
+					color: '#d74b28',
+					radius: '50%'
+				}
+			}, {
+				tag: 'font',
+				id: 'icon',
+				text: '+', //此为字体图标Unicode码'\e600'转换为'\ue600'
+				position: {
+					top: '-3px',
+					left: '5px',
+					width: '50px',
+					height: '100%'
+				},
+				textStyles: {
+					fontSrc: '_www/fonts/iconfont.ttf',
+					align: 'center',
+					color: '#fff',
+					size: '30px'
+				}
+			}]);
+			// append 到父webview中
+			self.append(drawNativeIcon);
+
+			//自定义监听图标点击事件
+			var active_color = '#fff';
+
+			drawNativeIcon.addEventListener('click', function(e) {
+				detailView = mui.openWindow({
+					url: "/html/qrscan.html"
+				})
+				detailView.show();
+
+			});
+			// 中间凸起图标绘制及监听点击完毕
+
+			// 创建子webview窗口 并初始化
+			var aniShow = {};
+			util.initSubpage(aniShow);
+
+			var nview = plus.nativeObj.View.getViewById('tabBar'),
+				activePage = plus.webview.currentWebview(),
+				targetPage,
+				subpages = util.options.subpages,
+				pageW = window.innerWidth,
+				currIndex = 0;
+			/**
+			 * 根据判断view控件点击位置判断切换的tab
+			 */
+			nview.addEventListener('click', function(e) {
+				var clientX = e.clientX;
+				if (clientX > 0 && clientX <= parseInt(pageW * 0.25)) {
+					currIndex = 0;
+				} else if (clientX > parseInt(pageW * 0.25) && clientX <= parseInt(pageW * 0.45)) {
+
+					currIndex = 1;
+				} else if (clientX > parseInt(pageW * 0.45) && clientX <= parseInt(pageW * 0.8)) {
+					currIndex = 2;
+				} else {
+					currIndex = 3;
+				}
+				// 匹配对应tab窗口	
+				if (currIndex > 0) {
+					targetPage = plus.webview.getWebviewById(subpages[currIndex - 1]);
+				} else {
+					targetPage = plus.webview.currentWebview();
+				}
+
+				if (targetPage == activePage) {
+					return;
+				}
+
+				if (currIndex > 0) {
+					util.toggleNview(currIndex);
+					util.changeSubpage(targetPage, activePage, aniShow);
+					activePage = targetPage;
+				} else {
+					util.toggleNview(currIndex);
+					util.changeSubpage(targetPage, activePage, aniShow);
+					activePage = targetPage;
+					plus.navigator.setStatusBarStyle("light"); //设置状态栏样式
+					plus.navigator.setStatusBarBackground('#426ab3'); //设置状态栏的颜色
+				}
+
+				// } else {
+				// 	//第四个tab 打开新窗口
+				// 	plus.webview.open('html/new-webview.html', 'new', {}, 'slide-in-right', 200);
+				// }
+			});
+		});
+	})();
+</script>

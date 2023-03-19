@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>借阅历史</title>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/mui.picker.min.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<link rel="stylesheet" type="text/css" href="../css/bookCard.css" />
+		<script type="text/javascript">
+			var info;
+			var id;
+			var storeName;
+			var startDate;
+			var endDate;
+			var uid = localStorage.getItem("uid");
+			var step = 0;
+
+
+			mui.init({
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function() {
+							if (id == null) {
+								id = 1049533;
+							}
+							mui.get('http://39.106.51.168:8080/book/info?id=' + id, {
+								"length": 20
+							}, function(data) {
+
+								info.info = data.data;
+								info.show = true;
+
+								$("#store").show();
+								$("#action-btn").show();
+								mui('body').pullRefresh().endPulldown();
+							}, 'json');
+
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					}
+				}
+			});
+			mui.ready(function() {
+				var self = plus.webview.currentWebview();
+				id = self.bid;
+				console.log(id);
+			});
+			$(window).ready(function() {
+				info = new Vue({
+					el: '#content',
+					data: {
+						show: false,
+						info: []
+					}
+				});
+			});
+
+			function djs() {
+				console.log("show");
+				var time = 7;
+				$("#confirm-btn").show();
+				$("#confirm-btn").attr("disabled");
+				$("#confirm-btn").text(time + "s")
+				t = setInterval(function() {
+					time--;
+
+					$("#confirm-btn").text(time + "s");
+
+					if (time <= 0) {
+						$("#confirm-btn").text("我已阅读，确认借阅");
+						$("#confirm-btn").removeAttr("disabled");
+						clearInterval(t);
+					}
+
+				}, 1000);
+
+			}
+
+
+			function confirm() {
+
+				mui("#confirm-btn").button('loading');
+				if (id == null || storeName == null || startDate == null || endDate == null) {
+					mui("#confirm-btn").button('reset');
+					mui.toast("参数异常", {
+						duration: 'short',
+						type: 'div'
+					});
+					return
+					$("#xieyi").hide();
+					return
+				}
+
+				// $("#xieyi").hide();
+				// console.log("123");
+
+				mui.get('http://39.106.51.168:8080/jy/add?uid=' + uid + '&bid=' + id + '&startDate=' + startDate + '&endDate=' +
+					endDate + '&storeName=' + storeName, {},
+					function(data) {
+						
+						$("#xieyi").hide();
+						mui("#confirm-btn").button("reset");
+						mui.toast(data.msg, {
+							duration: 'long',
+							type: 'div'
+						});
+						
+						
+					}, 'json');
+
+
+
+
+
+			}
+
+			function action() {
+
+				if (step == 0) {
+					storeName = null;
+					var ele = document.getElementsByName("place");
+					for (var i = 0; i < ele.length; i++) {
+						if (ele[i].checked == true) {
+							storeName = ele[i].value;
+							break;
+
+						}
+					}
+					if (storeName == null) {
+						mui.toast("请选择取书位置", {
+							duration: 'short',
+							type: 'div'
+						});
+						return
+					}
+
+					mui("#action-btn").button('loading');
+					step = 1;
+					setTimeout(function() {
+						$("#date").show();
+						mui("#action-btn").button('reset');
+						$("#action-btn").text("确认借阅日期")
+					}, Math.random() * 1000)
+
+				} else if (step == 1) {
+					reg = new RegExp('-', "g")
+					start = $("#start-date").text();
+					end = $("#end-date").text();
+					if (start == "请选择日期" || end == "请选择日期") {
+						mui.toast("请确认日期", {
+							duration: 'short',
+							type: 'div'
+						});
+						return
+					}
+					now = new Date();
+					d1 = new Date(start);
+					d2 = new Date(end);
+					days = d2.getTime() - d1.getTime();
+					time = parseInt(days / (1000 * 60 * 60 * 24));
+
+					if (d1 < now) {
+						mui.toast("起始日期不能小于今天", {
+							duration: 'short',
+							type: 'div'
+						});
+						return;
+					} else if (time <= 0) {
+						mui.toast("归还日期不能大于等于借阅日期！", {
+							duration: 'short',
+							type: 'div'
+						});
+						return;
+					} else if (time > 31) {
+						mui.toast("最长借阅时间不能超过31天，请重新输入日期\n当前借阅天数：" + time, {
+							duration: 'short',
+							type: 'div'
+						});
+						return;
+					}
+
+					step = 2;
+					startDate = start;
+					endDate = end;
+					$("#xieyi").css("display", "flex");
+					djs();
+				}
+
+
+
+			}
+		</script>
+
+		<style type="text/css">
+			.mui-btn-block {
+				display: inline-block;
+				margin: 0;
+			}
+
+
+			.store-icon {
+				height: 20px;
+				transform: translateY(5px);
+			}
+
+			.mui-radio input {
+				transform: translateY(10px);
+			}
+
+			hr {
+				border: 0;
+				height: 1px;
+				background-color: #e4e8f4;
+
+			}
+
+			#xieyi {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				z-index: 100;
+				background-color: rgba(0, 0, 0, .7);
+			}
+
+			#xieyi .mui-card {
+				display: block;
+				width: 80%;
+				margin: 0;
+			}
+
+			#store,
+			#date,
+			#xieyi,
+			#confirm-btn,
+			#action-btn {
+				display: none;
+			}
+		</style>
+
+	</head>
+
+
+	<body>
+		<div class="title-bar-block">
+
+		</div>
+
+		<div class="title_bar" style="background-color: white;">
+			<a class="mui-icon mui-icon-back mui-action-back title-bar-a" style="left: 10px;"></a>
+			借阅
+		</div>
+
+		<div id="content" v-if="show">
+			<div class="book-info mui-card">
+
+				<span class="book-info-cover-box">
+					<img :src="info.cover" class="book-info-cover-box-pic">
+				</span>
+
+				<span class="book-info-text" id="bookInfo-head">
+					<span class="book-info-text-title">{{info.title}}</span>
+					<span>作者：{{info.author}}</span>
+					<span>年份：{{info.year}}</span>
+					<span>分类：{{info.type}}</span>
+					<span>出版社：{{info.publisher}}</span>
+					<span>isbn：{{info.isbn}}</span>
+				</span>
+			</div>
+
+		</div>
+
+		<div class="mui-card" id="store">
+			<div class="mui-card-header">库存情况</div>
+			<div class="mui-card-content">
+
+				<div class="mui-card-content-inner">
+					<div class="mui-input-row mui-radio">
+						<label><img src="../images/borrow/store.png" class="store-icon">
+							健翔桥校区图书馆 - <font size="" color="green">可借阅</font>
+						</label>
+						<input name="place" value="健翔桥校区图书馆" type="radio">
+					</div>
+					<hr>
+					<div class="mui-input-row mui-radio">
+						<label><img src="../images/borrow/store.png" class="store-icon">
+							小营校区图书馆 - <font size="" color="green">可借阅</font>
+						</label>
+						<input name="place" value="小营校区图书馆" type="radio">
+					</div>
+					<hr>
+
+					<div class="mui-input-row mui-radio">
+						<label><img src="../images/borrow/store.png" class="store-icon">
+							清河校区图书馆 - <font size="" color="green">可借阅</font>
+						</label>
+						<input name="place" value="清河校区图书馆" type="radio">
+					</div>
+
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="mui-card" id="date">
+			<div class="mui-card-header">借阅时间</div>
+			<div class="mui-card-content">
+
+				<div class="mui-card-content-inner">
+
+					<table style="width: 100%;" border="0">
+
+						<tr>
+							<th>借阅日期:</th>
+							<td><label id="start-date">请选择日期</label></td>
+							<th>
+								<button id='demo4' data-options='{"type":"date"}' class="btn mui-btn"
+									which="start">选择日期</button>
+							</th>
+						</tr>
+						<tr>
+							<th>归还日期:</th>
+							<td><label id="end-date">请选择日期</label></td>
+							<th>
+								<button id='demo4' data-options='{"type":"date"}' class="btn mui-btn"
+									which="end">选择日期</button>
+							</th>
+						</tr>
+					</table>
+
+				</div>
+
+			</div>
+
+		</div>
+
+		<div id="xieyi">
+			<div class="mui-card">
+				<div class="mui-card-header">请阅读借阅协议</div>
+				<div class="mui-content" style="background-color: white;">
+					<div class="mui-card-content-inner" style="height: 450px;overflow: scroll;">
+
+						1、凡持有本馆借书证者，均可凭证借阅图书。
+
+						<br><br>2、本馆图书采取开架为主闭架为辅的借阅方法。读者可进入规定开架书库选借图书，借书手续在借书处（出纳台）办理。入库时必须遵守《读者入库选书守则》和有关规定。
+
+						<br><br>3、持证读者，教工每证借书量不超过15册，研究生不超过10册，本、专科生不超过5册，成教生不超过3册，临时借书证不超过2册。
+
+						<br><br>4、借书期限：教工为3个月，学生为1个月。借阅期满可续借1次。
+
+						<br><br>5、馆藏线装书、善本书、近10年进口原版书、部分工具书等珍贵图书以及期刊不外借，只限在阅览室阅览。馆藏机密资料（地形图）按照国家机密资料管理办法和学校机密资料借阅规定办理借阅手续。
+
+						<br><br>6、 读者应按期归还所借图书。如过期不还也不办理续借手续， 从过期当天起计算借书逾期费，每册每天5分，累计到还书日止。
+						所借书刊到期时适逢法定节假日、寒暑假，不计逾期费。
+
+						<br><br>7、预约借书。读者所需图书已被他人借走时，可填写"预约借书单"或电话、网上预约，书到后即通知预约人来馆办理借书手续。读者应在一周内到借书处办理借书手续，逾期不予保留。
+
+						<br><br>8、遇有特殊需要时，本馆有权随时催还借出的图书。
+
+						<br><br>9、本省其他高校师生持馆际互借介绍信来馆借阅图书资料者，按"关于执行'湖北省高校图书馆通借通阅和文献传递协议'的试行办法"执行，每次限借2册，按书刊价的3倍收取押金，借期1个月。逾期1天，收逾期费0.2元，逾期2个月不还者，押金抵偿所借书刊，并通知担保馆（发证馆）催还所借书刊。
+
+						<br><br>10、所借图书如有损坏遗失等情况，按《书刊遗失、损坏赔偿办法》处理。
+
+
+					</div>
+
+				</div>
+				<div class="mui-card-footer" style="text-align: center;">
+					<a href=""></a>
+					<button id="confirm-btn" data-loading-text="加载中" onclick="confirm()" style="width: 150px;"
+						disabled="" type="button" class="mui-btn mui-btn-warning">我已阅读，确认借阅</button>
+					<a href=""></a>
+				</div>
+			</div>
+		</div>
+
+		<div class="mui-card" style="padding: 0px;">
+			<button type="button" data-loading-text="加载中" id="action-btn" onclick="action()"
+				class="mui-btn mui-btn-block mui-btn-primary mui-btn">确认存放地</button>
+		</div>
+
+		<script>
+			(function($) {
+				$.init();
+				var start = $('#start-date')[0];
+				var end = $('#end-date')[0];
+				var btns = $('.btn');
+				btns.each(function(i, btn) {
+					btn.addEventListener('tap', function() {
+						var _self = this;
+						if (_self.picker) {
+							// _self.picker.show(function(rs) {
+							// 	result.innerText = '选择结果: ' + rs.text;
+							// 	_self.picker.dispose();
+							// 	_self.picker = null;
+							// });
+						} else {
+							var optionsJson = this.getAttribute('data-options') || '{}';
+							var which = this.getAttribute('which')
+							var options = JSON.parse(optionsJson);
+							var id = this.getAttribute('id');
+							/*
+							 * 首次显示时实例化组件
+							 * 示例为了简洁，将 options 放在了按钮的 dom 上
+							 * 也可以直接通过代码声明 optinos 用于实例化 DtPicker
+							 */
+							_self.picker = new $.DtPicker(options);
+							_self.picker.show(function(rs) {
+								/*
+								 * rs.value 拼合后的 value
+								 * rs.text 拼合后的 text
+								 * rs.y 年，可以通过 rs.y.vaue 和 rs.y.text 获取值和文本
+								 * rs.m 月，用法同年
+								 * rs.d 日，用法同年
+								 * rs.h 时，用法同年
+								 * rs.i 分（minutes 的第二个字母），用法同年
+								 */
+
+								if (which == "end") {
+									end.innerText = rs.value;
+								} else {
+									start.innerText = rs.value;
+								}
+								console.log('选择结果: ');
+								/* 
+								 * 返回 false 可以阻止选择框的关闭
+								 * return false;
+								 */
+								/*
+								 * 释放组件资源，释放后将将不能再操作组件
+								 * 通常情况下，不需要示放组件，new DtPicker(options) 后，可以一直使用。
+								 * 当前示例，因为内容较多，如不进行资原释放，在某些设备上会较慢。
+								 * 所以每次用完便立即调用 dispose 进行释放，下次用时再创建新实例。
+								 */
+								_self.picker.dispose();
+								_self.picker = null;
+							});
+						}
+
+					}, false);
+				});
+			})(mui);
+		</script>
+
+
+	</body>
+
+
+</html>

@@ -1,0 +1,422 @@
+$def with(data)
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>图书信息更新</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="./static/css/layui.css" />
+	<script src="./static/js/layui.js" type="text/javascript" charset="utf-8"></script>
+	<script src="./static/js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="./static/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	<meta name="referrer" content="never">
+
+
+	<script type="text/javascript">
+		var typeList = [];
+		var storeDic = {};
+		var data = $:(data);
+
+		typeList = data.type.split("-");
+		storeDic = data.store;
+
+		$$(window).ready(function () {
+			var index = layer.load(2, {time: 10*1000,shade: [1, '#fff']});
+			$$("#title").val(data.title);
+			$$("#author").val(data.author);
+			$$("#year").val(data.year);
+			$$("#pulisher").val(data.publisher);
+			$$("#isbn").val(data.isbn);
+			$$("#cover").val(data.cover);
+			$$("#desc").val(data.introduction);
+
+			for (var key in storeDic) {
+
+				type = key + ":" + storeDic[key];
+				$$("#storeBox").append(
+					"<div name='" + key +
+					"' class='store-select layui-unselect layui-form-checkbox layui-form-checked layui-uselect layui-form-checkbox'><span>" +
+					type + "</span><i class='layui-icon layui-icon-ok'></i></div>");
+			}
+
+			for (i = 0; i < typeList.length; i++) {
+				$$("#typeBox").append(
+					"<div name='" + typeList[i] +
+					"' class='type-select layui-unselect layui-form-checkbox layui-form-checked layui-uselect layui-form-checkbox'><span>" +
+					typeList[i] + "</span><i class='layui-icon layui-icon-ok'></i></div>");
+
+			}
+
+
+			$$("#cover").on("input", function () {
+				$$("#content").css("background-image", "url(" + $$("#cover").val() + ")");
+			});
+
+			$$(".type-select").click(function () {
+
+				select = $$(this);
+
+				layer.confirm('确认要删除吗？', {
+					btn: ['确定', '取消'] //按钮
+				}, function (index) {
+					layer.close(index);
+					name = $$(select).attr("name");
+					console.log(name);
+					for (i = 0; i < typeList.length; i++) {
+						if (typeList[i] == name) {
+							typeList.splice(i, 1);
+						}
+					}
+					delete storeDic[$$(select).attr("name")];
+					$$(select).remove();
+					console.log(typeList);
+				});
+			});
+			$$(".store-select").click(function () {
+
+				select = $$(this);
+
+				layer.confirm('确认要删除吗？', {
+					btn: ['确定', '取消'] //按钮
+				}, function (index) {
+					layer.close(index);
+					console.log(storeDic);
+					console.log($$(select).attr("name"));
+					delete storeDic[$$(select).attr("name")];
+					$$(select).remove();
+					console.log(storeDic);
+				});
+
+			});
+
+			setTimeout(function(){
+				layer.close(index);
+			},500);
+
+		});
+
+		function addType() {
+
+			type = $$("#type-input").val();
+			if (type == null || type == "") return;
+			$$("#typeBox").append(
+				"<div name='" + type +
+				"' class='type-select layui-unselect layui-form-checkbox layui-form-checked layui-uselect layui-form-checkbox'><span>" +
+				type + "</span><i class='layui-icon layui-icon-ok'></i></div>");
+			$$("#type-input").val("");
+
+			typeList.push(type);
+			console.log(typeList);
+
+
+			$$(".type-select").click(function () {
+
+				select = $$(this);
+
+				layer.confirm('确认要删除吗？', {
+					btn: ['确定', '取消'] //按钮
+				}, function (index) {
+					layer.close(index);
+					name = $$(select).attr("name");
+					console.log(name);
+					for (i = 0; i < typeList.length; i++) {
+						if (typeList[i] == name) {
+							typeList.splice(i, 1);
+						}
+					}
+					delete storeDic[$$(select).attr("name")];
+					$$(select).remove();
+					console.log(typeList);
+				});
+
+			})
+
+		}
+
+		function addStore() {
+
+			storeName = $$("select[name='storePlace']").val();
+			number = $$("#storeNum").val();
+			console.log(storeName, number);
+
+
+			if (storeName == null || number == null) return;
+			if (storeName == "" || number == "") return;
+			type = storeName + ":" + number
+
+			$$("#storeBox").append(
+				"<div name='" + storeName +
+				"' class='store-select layui-unselect layui-form-checkbox layui-form-checked layui-uselect layui-form-checkbox'><span>" +
+				type + "</span><i class='layui-icon layui-icon-ok'></i></div>");
+
+			storeDic[storeName] = number;
+			console.log(storeDic);
+
+			$$(".store-select").click(function () {
+
+				select = $$(this);
+
+				layer.confirm('确认要删除吗？', {
+					btn: ['确定', '取消'] //按钮
+				}, function (index) {
+					layer.close(index);
+					name = $$(select).attr("name")
+					console.log(name);
+					delete storeDic[name];
+					$$(select).remove();
+					console.log(storeDic);
+				});
+
+			})
+
+		}
+
+		function upload() {
+
+			title = $$("#title").val();
+			author = $$("#author").val();
+			year = $$("#year").val();
+			publisher = $$("#pulisher").val();
+			isbn = $$("#isbn").val();
+			cover = $$("#cover").val();
+			introduction = $$("#desc").val();
+			console.log(title, author, year, publisher, isbn, cover, introduction);
+			if (title == "" || year == "" || author == "" || publisher == "" || isbn == "" || cover == "" || introduction ==
+				"") {
+
+				layer.alert("请检查输入", {
+					icon: 2
+				});
+
+				return;
+			}
+
+			newData = {
+				"title": title,
+				"author": author,
+				"year": year,
+				"publisher": publisher,
+				"isbn": isbn,
+				"cover": cover,
+				"introduction": introduction,
+				"type": typeList,
+				"store": storeDic
+			};
+
+			newData.bid = data.id;
+			
+			mui.post('/bookAdd', {
+				"data": JSON.stringify(newData)
+			}, function (data) {
+				layer.alert(data.msg, {
+					icon: 0
+				});
+
+
+			}, 'json');
+
+		}
+
+	</script>
+
+	<style type="text/css">
+		body {
+			background-color: #f9f9f9;
+			display: flex;
+			justify-content: center;
+			text-align: center;
+		}
+
+		#content {
+			position: relative;
+			width: 600px;
+			margin: 20px;
+			background: center;
+			background-size: 100% 100%;
+			/* background-color: white; */
+			/* background-image: url(https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0158ca58135342a84a0e282babb45c.jpg&refer=http%3A%2F%2Fimg.zcool.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1624017138&t=c367c5e0f781cd876cd59a31fa1c052c); */
+		}
+
+		#main {
+			background-color: rgba(0, 0, 0, .6);
+		}
+
+		.layui-form-label {
+			color: white;
+		}
+	</style>
+
+</head>
+
+<body>
+
+	<div id="background">
+		<img id="background-img" src="./static/img/mt.jpeg" >
+	</div>
+	<style type="text/css">
+		#background{
+			width: 100vw;
+			height: 100vh;
+			position: fixed;
+			left: 0px;
+			top: 0px;
+			overflow: hidden;
+			z-index: -1;
+		}
+		#background-img{
+			width: 100%;
+			height: 100%;
+			filter: blur(10px);
+			transform: scale(1.2);
+		}
+	</style>
+
+	<div id="content">
+
+		<blockquote class="layui-elem-quote layui-text" style="margin: 0;">
+			图书信息管理
+		</blockquote>
+
+		<div style="z-index: 10;">
+
+
+			<div id="main" class="site-text site-block" style="padding-right: 30px;">
+				<br>
+
+				<form class="layui-form">
+					<div class="layui-form-item">
+						<label class="layui-form-label">标题</label>
+						<div class="layui-input-block">
+							<input type="text" id="title" disabled="" name="title" required="" lay-verify="required"
+								placeholder="请输入标题" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">作者</label>
+						<div class="layui-input-inline">
+							<input type="text" id="author" name="author" required="" lay-verify="required"
+								lay-vertype="tips" placeholder="请输入作者名" autocomplete="off" class="layui-input">
+						</div>
+						<div class="layui-form-mid layui-word-aux">作者姓名</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">出版年份</label>
+						<div class="layui-input-inline">
+							<input type="text" id="year" required="" lay-verify="required" lay-vertype="tips"
+								placeholder="请输入出版年份" autocomplete="off" class="layui-input">
+						</div>
+						<div class="layui-form-mid layui-word-aux">如2012</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">出版社</label>
+						<div class="layui-input-inline">
+							<input type="text" id="pulisher" required="" lay-verify="required" lay-vertype="tips"
+								placeholder="请输入出版社" autocomplete="off" class="layui-input">
+						</div>
+						<div class="layui-form-mid layui-word-aux">出版社全称</div>
+					</div>
+
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">ISBN</label>
+						<div class="layui-input-inline">
+							<input type="text" id="isbn" required="" lay-verify="required" lay-vertype="tips"
+								placeholder="请输入ISBN" autocomplete="off" class="layui-input">
+						</div>
+						<div class="layui-form-mid layui-word-aux">ISBN</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">封面</label>
+						<div class="layui-input-inline">
+							<input type="text" id="cover" required="" lay-vertype="tips" id="cover-url"
+								placeholder="请输入封面链接" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">分类</label>
+						<div class="layui-input-block" id="typeBox">
+
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">库存</label>
+						<div class="layui-input-block" id="storeBox">
+
+						</div>
+					</div>
+
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">添加分类</label>
+						<div class="layui-input-inline">
+							<input type="text" id="type-input" name="text" required="" lay-vertype="tips"
+								placeholder="输入分类名,如 科幻" autocomplete="off" class="layui-input">
+						</div>
+						<div class="layui-input-inline" style="width: 80px;">
+							<button type="button" class="layui-btn" onclick="addType()">添加</button>
+						</div>
+
+
+
+					</div>
+
+					<br>
+					<div class="layui-form-item">
+						<label class="layui-form-label">添加库存</label>
+						<div class="layui-input-inline">
+							<select id="storeName" name="storePlace">
+								<option value=""></option>
+								<option value="健翔桥校区">健翔桥校区</option>
+								<option value="小营校区">小营校区</option>
+								<option value="清河校区">清河校区</option>
+							</select>
+						</div>
+
+						<div class="layui-input-inline" style="width: 100px;">
+							<input type="text" id="storeNum" name="text" required="" lay-vertype="tips"
+								placeholder="输入数量" autocomplete="off" class="layui-input">
+						</div>
+						<div class="layui-input-inline" style="width: 80px;">
+							<button type="button" class="layui-btn" onclick="addStore()">添加</button>
+
+						</div>
+					</div>
+
+					<br>
+					<div class="layui-form-item layui-form-text">
+						<label class="layui-form-label">书籍介绍</label>
+						<div class="layui-input-block">
+							<textarea id="desc" placeholder="请输入内容" required="" lay-verify="required"
+								class="layui-textarea"></textarea>
+						</div>
+					</div>
+
+
+					<div class="layui-form-item">
+						<div class="layui-input-block">
+							<button type="button" onclick="upload()" class="layui-btn" lay-submit=""
+								lay-filter="formDemo">立即提交</button>
+							<button type="reset" style="background-color: white;"
+								class="layui-btn layui-btn-primary">重置</button>
+						</div>
+					</div>
+
+					<br><br>
+				</form>
+			</div>
+		</div>
+
+
+	</div>
+
+
+</body>
+
+
+</html>

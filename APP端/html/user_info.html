@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>社交页面</title>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+
+		<script type="text/javascript">
+			var info;
+			mui.init();
+			mui.ready(function() {
+
+			});
+
+			$(window).ready(function() {
+
+				$("#xieyi").hide();
+
+				info = new Vue({
+					el: '#content',
+					data: {
+						sign: "1",
+						nickname: "2",
+						head: ""
+					}
+				});
+
+				setInterval(function() {
+					info.sign = localStorage.getItem("sign");
+					info.nickname = localStorage.getItem("nickname");
+					info.head = localStorage.getItem("head");
+				}, 100)
+
+			});
+
+			function showSc() {
+				detailView = mui.openWindow({
+					url: "./sc.html"
+				})
+				detailView.show();
+			}
+
+			function showSb() {
+				detailView = mui.openWindow({
+					url: "./sb.html"
+				})
+				detailView.show();
+			}
+
+			function loginOut() {
+				var btnArray = ['否', '是'];
+				mui.confirm('确认注销？', '提示', btnArray, function(e) {
+					if (e.index == 1) {
+						localStorage.setItem("uid", null);
+
+						detailView = mui.openWindow({
+							url: "./login.html"
+						})
+						detailView.show();
+
+					} else {
+
+
+					}
+				})
+			}
+
+			function change() {
+				$("#xieyi").show();
+				sign = localStorage.getItem("sign");
+				nickname = localStorage.getItem("nickname");
+				head = localStorage.getItem("head");
+				$("#sign-input").val(sign);
+				$("#head-input").val(head);
+				$("#nickname-input").val(nickname);
+			}
+
+			function closeInfo() {
+				$("#xieyi").hide();
+
+			}
+
+			function confirmInfo() {
+				sign = $("#sign-input").val();
+				head = $("#head-input").val();
+				nickname = $("#nickname-input").val();
+				uid = localStorage.getItem("uid");
+
+				console.log(sign,head,nickname);
+
+				mui.get('http://39.106.51.168:8080/user/info/change', {
+					username: uid,
+					sign: sign,
+					nickname: nickname,
+					head: head
+				}, function(data) {
+
+					mui.toast(data.msg, {
+						duration: 'long',
+						type: 'div'
+					});
+
+					if (data.msg = "修改成功") {
+						localStorage.setItem("nickname", nickname);
+						localStorage.setItem("sign", sign);
+						localStorage.setItem("head", head);
+
+						info.sign = localStorage.getItem("sign");
+						info.nickname = localStorage.getItem("nickname");
+						info.head = localStorage.getItem("head");
+						closeInfo();
+					}
+
+				}, 'json');
+
+			}
+			
+			
+			function seeOut(){
+				var ws = plus.webview.currentWebview();
+				plus.webview.close(ws);
+				detailView = mui.openWindow({
+					url: "./out.html"
+				})
+				detailView.show();
+				
+			}
+		</script>
+
+		<style type="text/css">
+			body {
+				padding-top: 30px;
+			}
+
+			#xieyi {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				z-index: 100;
+				background-color: rgba(0, 0, 0, .7);
+			}
+
+			#xieyi .mui-card {
+				display: block;
+				width: 80%;
+				margin: 0;
+			}
+
+		</style>
+
+	</head>
+
+
+	<body>
+		<div class="title-bar-block">
+
+		</div>
+
+		<div class="title_bar">
+			用户主页
+		</div>
+		<br><br>
+
+		<div class="info-user-info" id="content">
+			<img class="info-user-info-head" :src="head">
+			<span class="info-user-info-id">{{nickname}}</span>
+			<span class="info-user-info-sign">{{sign}}</span>
+		</div>
+		<br>
+
+		<div class="info-option-card" onclick="showSc()">
+			<img class="info-option-card-icon" src="../images/index/tj.png">
+			<span class="info-option-card-text">我的收藏</span>
+			<!-- <span class="info-option-card-number" style="color: #0062CC;">10</span> -->
+			<span class="info-option-card-enter"></span>
+			<span class="info-option-card-enderline"></span>
+		</div>
+
+		<div class="info-option-card" onclick="showSb()">
+			<img class="info-option-card-icon" src="../images/person/fb.png">
+			<span class="info-option-card-text">我的随笔</span>
+			<!-- <span class="info-option-card-number" style="color: #0062CC;">10</span> -->
+			<span class="info-option-card-enter"></span>
+			<span class="info-option-card-enderline"></span>
+		</div>
+
+		<a href="#">
+			<div class="info-option-card" onclick="seeOut()">
+				<img class="info-option-card-icon" src="../images/person/jg.png">
+				<span class="info-option-card-text">逾期记录</span>
+				<!-- <span class="info-option-card-number" style="color: #0062CC;">10</span> -->
+				<span class="info-option-card-enter"></span>
+			</div>
+		</a>
+
+		<br>
+		<div class="info-option-card" onclick="change()">
+			<img class="info-option-card-icon" src="../images/info.png">
+			<span class="info-option-card-text">修改信息</span>
+			<!-- <span class="info-option-card-number" style="color: #0062CC;">10</span> -->
+			<span class="info-option-card-enter"></span>
+		</div>
+		<br>
+
+		<br>
+		<button type="button" onclick="loginOut()" class="mui-btn mui-btn-block mui-btn-warning">注销账号</button>
+
+		<div id="xieyi">
+			<div class="mui-card">
+				<div class="mui-card-header">信息修改</div>
+				<div class="mui-content" style="background-color: white;">
+					<div class="mui-card-content-inner" style="height: 150px;overflow: scroll;">
+						<form class="mui-input-group">
+
+							<div class="mui-input-row">
+								<label>昵称</label>
+								<input type="text" id="nickname-input" class="mui-input-clear" placeholder="请输入昵称">
+							</div>
+
+							<div class="mui-input-row">
+								<label>签名</label>
+								<input type="text" id="sign-input" class="mui-input-clear" placeholder="请输入签名">
+							</div>
+
+							<div class="mui-input-row">
+								<label>头像链接</label>
+								<input type="text" id="head-input" class="mui-input-clear" placeholder="请输入头像链接">
+							</div>
+
+						</form>
+					</div>
+
+				</div>
+				<div class="mui-card-footer" style="text-align: center;">
+					<a href=""></a>
+					<button type="button" onclick="confirmInfo()" class="mui-btn mui-btn-primary">确认</button>
+					<button type="button" onclick="closeInfo()" class="mui-btn mui-btn-danger">取消</button>
+					<a href=""></a>
+				</div>
+			</div>
+		</div>
+
+
+	</body>
+
+
+</html>

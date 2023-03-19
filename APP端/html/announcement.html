@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>公告</title>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<script type="text/javascript">
+			mui.init({
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function() {
+							
+							mui.get('http://39.106.51.168:8080/system/gg', null, function(data) {
+								$("#content").html("");
+								for(i = 0;i < data.data.length;i++){
+									$("#content").append('<div class="mui-card"><div class="mui-card-header mui-card-media"><img src="../images/logo.png"><div class="mui-media-body">' + data.data[i].title + '<p>发表于 ' + data.data[i].date + '</p></div></div><div class="mui-card-content"><div class="mui-card-content-inner">' + data.data[i].content + '</div></div></div>')
+									
+									
+								}
+								mui('body').pullRefresh().endPulldown();
+							}, 'json');
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					}
+				}
+			});
+
+			mui.ready(function() {
+
+			});
+
+			$(window).ready(function() {
+
+			});
+		</script>
+
+	</head>
+	<body>
+		<div class="title-bar-block">
+
+		</div>
+
+		<div class="title_bar" style="background-color: white;">
+			<a class="mui-icon mui-icon-back mui-action-back title-bar-a" style="left: 10px;"></a>
+			公告
+		</div>
+
+	<div id="content">
+		
+	</div>
+
+
+
+	</body>
+</html>

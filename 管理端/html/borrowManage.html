@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>借阅管理</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+		<link rel="stylesheet" type="text/css" href="./static/css/layui.css" />
+		<script src="./static/js/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./static/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+
+		<style type="text/css">
+			.mui-active {
+				background-color: #007DDB;
+				color: white;
+			}
+
+			.mui-active a {
+				color: white;
+			}
+
+			li {
+				display: inline-block;
+				border: 1px solid #007DDB;
+				padding: 10px;
+				padding-left: 13px;
+				padding-right: 13px;
+				border-radius: 3px;
+				margin: 1px;
+				transition: .3s;
+			}
+
+			li:hover {
+				background-color: #007DDB;
+				color: white;
+			}
+		</style>
+
+
+		<script type="text/javascript">
+			var jy;
+			var total;
+			var page = 1;
+			var num = 20;
+
+			function query() {
+				fresh(page);
+			}
+
+			function fresh(pageNum) {
+				page = pageNum;
+				var index = layer.load(2, {
+					time: 10 * 1000,
+					shade: [0.95, '#fff']
+				});
+
+				uid = $$("#uid").val();
+
+				jy.show = false;
+				mui.get("/jy/total", {
+						uid: uid,
+						page: pageNum,
+						num: num
+					},
+					function(data) {
+						jy.datas = data.data;
+						if (data.data.length != 0) {
+							jy.show = true;
+						}
+						total = data.total;
+						makePageChoose();
+						layer.close(index);
+					}, 'json');
+			}
+
+
+			function makePageChoose() {
+
+				$$("#foot").hide();
+
+				$$('html , body').animate({
+					scrollTop: 0
+				}, 'fast');
+				if (total % num == 0)
+					max = total / num
+				else
+					max = Math.floor(total / num) + 1;
+				start = 0;
+				end = 0;
+
+				$$(".mui-pagination").html("");
+
+				if (page >= 2) {
+					$$(".mui-pagination").append('<li class="mui-previous"><a href="javascript:fresh(' + (page - 1) +
+						')">&laquo;</a></li>');
+				}
+
+				if (max <= 7) {
+					start = 1;
+					end = max;
+					console.log("mode1");
+				} else if (page > 3 && page < max - 3) {
+					start = page - 3;
+					end = page + 3;
+					console.log("mode2");
+				} else if (page >= 1 && page < 8) {
+					start = 1;
+					end = 8;
+					console.log("mode3");
+				} else if (i >= max - 3) {
+					start = max - 6;
+					end = max;
+					console.log("mode5");
+				} else {
+					start = page - 3;
+					end = page + 3;
+					console.log("mode4");
+				}
+
+				console.log(page, max, start, end);
+
+				for (i = start; i <= end; i++) {
+					if (i == page)
+						$$(".mui-pagination").append('<li class="mui-active"><a href="javascript:fresh(' + i + ')">' + i +
+							'</a></li>');
+					else
+						$$(".mui-pagination").append('<li class=""><a href="javascript:fresh(' + i + ')">' + i + '</a></li>');
+				}
+
+				if (page < max) {
+					$$(".mui-pagination").append('<li class="mui-previous"><a href="javascript:fresh(' + (page + 1) +
+						')">&raquo;</a></li>');
+
+				}
+
+				$$("#foot").show();
+
+				$$("li").hover(function() {
+					$$(this).find("a").css("color", "white");
+
+				}, function() {
+					$$(this).find("a").css("color", "black");
+
+				})
+
+			}
+
+			function out(uid, bid) {
+				var index = layer.load(2, {
+					time: 10 * 1000,
+					shade: [0.95, '#fff']
+				});
+
+				uid = $$("#uid").val();
+
+				jy.show = false;
+				mui.get("/jy/out", {},
+					function(data) {
+						jy.datas = data;
+						jy.show = true;
+						layer.close(index);
+					}, 'json');
+
+			}
+
+			function dateCheck() {
+
+				date = $$("#date").val()
+
+				if (date == "") {
+					layer.alert('请输入日期', {
+						icon: 2
+					});
+					return;
+				}
+
+				var index = layer.load(2, {
+					time: 10 * 1000,
+					shade: [0.95, '#fff']
+				});
+
+				jy.show = false;
+				mui.get("/jy/date", {date:date},
+					function(data) {
+						jy.datas = data.data;
+						jy.show = true;
+						layer.close(index);
+					}, 'json');
+
+			}
+
+			function notback(uid, bid) {
+				var index = layer.load(2, {
+					time: 10 * 1000,
+					shade: [0.95, '#fff']
+				});
+
+				uid = $$("#uid").val();
+
+				jy.show = false;
+				mui.get("/jy/notback", {},
+					function(data) {
+						jy.datas = data;
+						jy.show = true;
+						layer.close(index);
+					}, 'json');
+
+			}
+
+			function remove(uid, bid) {
+				layer.confirm('确认要删除吗？', {
+					btn: ['确定', '取消'] //按钮
+				}, function(index) {
+					layer.close(index);
+
+					mui.get("/jy/cancel", {
+							uid: uid,
+							bid: bid
+						},
+						function(data) {
+
+							fresh(page);
+						}, 'json');
+				});
+
+			}
+
+			$$(window).ready(function() {
+
+				jy = new Vue({
+					el: '#content',
+					data: {
+						datas: [],
+						show: false
+					}
+				});
+				fresh(1);
+			});
+		</script>
+
+	</head>
+
+
+	<body>
+
+		<blockquote class="layui-elem-quote layui-text">
+			图书信息管理
+		</blockquote>
+
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body">
+				<form class="layui-form">
+					<div class="layui-form-item">
+
+						<label class="layui-form-label">用户ID</label>
+						<div class="layui-input-inline">
+							<input type="text" name="title" placeholder="请输入用户ID" autocomplete="off" class="layui-input"
+								id="uid">
+						</div>
+
+						<label class="layui-form-label">预定日期</label>
+						<div class="layui-input-inline">
+							<input type="text" name="title" placeholder="如 2020-01-01" autocomplete="off"
+								class="layui-input" id="date">
+						</div>
+					</div>
+
+				</form>
+
+			</div>
+
+		</div>
+
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body" style="text-align: center;padding: 10px;">
+
+				<button type="button" class="layui-btn layui-btn-normal" onclick="query()">查询借阅记录</button>
+				<button type="button" class="layui-btn layui-btn-normal" onclick="notback()">查看未归还</button>
+				<button type="button" class="layui-btn layui-btn-normal" onclick="out()">查看逾期</button>
+				<button type="button" class="layui-btn layui-btn-normal" onclick="dateCheck()">根据预定日期查询</button>
+
+			</div>
+
+		</div>
+
+		<div class="layui-card" id="content" v-if="show">
+			<div class="layui-card-header">数据展示</div>
+			<div class="layui-card-body">
+
+				<div>
+					<table class="layui-table">
+						<colgroup>
+							<col>
+							<col>
+							<col>
+							<col>
+							<col>
+							<col>
+							<col>
+							<col>
+							<col>
+						</colgroup>
+						<thead>
+							<tr>
+								<th>用户名</th>
+								<th>书名</th>
+								<th>存放地点</th>
+								<th>预定时间</th>
+								<th>预计归还</th>
+								<th>取书时间</th>
+								<th>归还时间</th>
+								<th>当前状态</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+
+							<tr v-for="data in datas">
+								<td>{{data.nickname}}</td>
+								<td>《{{data.bookname}}》</td>
+								<td>{{data.storeName}}</td>
+								<td>{{data.startDate}}</td>
+								<td>{{data.endDate}}</td>
+								<td>{{data.borrowDate}}</td>
+								<td>{{data.backDate}}</td>
+								<td>{{data.status}}</td>
+								<td>
+
+									<a type="button" class="layui-btn" target="_blank"
+										:href="'/book/borrow?uid=' + data.uid + '&bid=' + data.bid">借阅</a>
+
+									<a type="button" class="layui-btn layui-btn-normal" target="_blank"
+										:href="'/book/back?uid=' + data.uid + '&bid=' + data.bid">归还</a>
+
+									<button type="button" class="layui-btn layui-btn-danger"
+										:onclick="'remove(' + data.uid + ',' + data.bid + ')'">删除</button>
+
+								</td>
+							</tr>
+
+						</tbody>
+					</table>
+
+				</div>
+
+			</div>
+		</div>
+
+
+		<div class="layui-card">
+			<div class="layui-card-body">
+
+				<div id="foot" style="text-align: center;">
+					<div class="mui-content-padded">
+						<ul class="mui-pagination">
+		
+							<li class="mui-previous mui-disabled">
+								<a href="#">
+									&laquo;
+								</a>
+							</li>
+		
+							<li class="mui-active">
+								<a href="javascript:fresh(10)">
+									1
+								</a>
+							</li>
+		
+							<li class="mui-next">
+								<a href="#">
+									&raquo;
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+		
+			</div>
+		  </div>
+
+		<div id="background">
+			<img id="background-img" src="./static/img/mt.jpeg" >
+		</div>
+		<style type="text/css">
+		body{
+			padding:20px
+		}
+			#background{
+				width: 100vw;
+				height: 100vh;
+				position: fixed;
+				left: 0px;
+				top: 0px;
+				overflow: hidden;
+				z-index: -1;
+			}
+			#background-img{
+				width: 100%;
+				height: 100%;
+				filter: blur(10px);
+				transform: scale(1.2);
+			}
+		</style>
+
+
+
+	</body>
+
+
+</html>

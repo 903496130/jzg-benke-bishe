@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>借阅历史</title>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<meta name="referrer" content="never">
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+
+		<script type="text/javascript">
+			var sc;
+			var page = 1;
+			var total = 0;
+			var num = 20;
+			var keyWords = "美";
+
+			mui.init({
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function() {
+
+							mui.get('http://39.106.51.168:8080/book/search?keywords=' + keyWords + "&page=" + page +
+								"&num=" + num, {
+									"length": 20
+								},
+								function(data) {
+									sc.infos = data.data;
+									mui.toast(data.msg, {
+										duration: 'long',
+										type: 'div'
+									});
+									total = data.total;
+									makePageChoose();
+									mui('body').pullRefresh().endPulldown();
+
+
+									$("#search-info").show()
+								}, 'json');
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					}
+				}
+			});
+			mui.ready(function() {
+				var self = plus.webview.currentWebview();
+				keyWords = self.keyWords;
+				$("#search-info").hide();
+
+			});
+
+			$(window).ready(function() {
+
+
+				sc = new Vue({
+					el: '#content',
+					data: {
+						infos: []
+					}
+				});
+			});
+
+
+			function fresh(pageNum) {
+
+				mui.get('http://39.106.51.168:8080/book/search?keywords=' + keyWords + "&page=" + pageNum + "&num=" + num, {
+					"length": 20
+				}, function(data) {
+					sc.infos = data.data;
+					page = pageNum;
+					makePageChoose();
+					// mui('body').pullRefresh().endPulldown();
+				}, 'json');
+
+			}
+
+			function makePageChoose() {
+
+				$("#foot").hide();
+
+
+				$('html , body').animate({
+					scrollTop: 0
+				}, 'fast');
+				if (total % num == 0)
+					max = total / num
+				else
+					max = Math.floor(total / num) + 1;
+				start = 0;
+				end = 0;
+
+				$("#search-info").html("关键字:" + keyWords + "&nbsp;&nbsp;&nbsp;第&nbsp;" + page + "&nbsp;/&nbsp;" + max +
+						'&nbsp;页') &
+
+					$(".mui-pagination").html("");
+
+				if (page >= 2) {
+					$(".mui-pagination").append('<li class="mui-previous"><a href="javascript:fresh(' + (page - 1) +
+						')">&laquo;</a></li>');
+				}
+
+				if (max <= 7) {
+					start = 1;
+					end = max;
+					console.log("mode1");
+				} else if (page > 3 && page < max - 3) {
+					start = page - 3;
+					end = page + 3;
+					console.log("mode2");
+				} else if (page >= 1 && page < 8) {
+					start = 1;
+					end = 8;
+					console.log("mode3");
+				} else if (i >= max - 3) {
+					start = max - 6;
+					end = max;
+					console.log("mode5");
+				} else {
+					start = page - 3;
+					end = page + 3;
+					console.log("mode4");
+				}
+
+				console.log(page, max, start, end);
+
+				for (i = start; i <= end; i++) {
+					if (i == page)
+						$(".mui-pagination").append('<li class="mui-active"><a href="javascript:fresh(' + i + ')">' + i +
+							'</a></li>');
+					else
+						$(".mui-pagination").append('<li class=""><a href="javascript:fresh(' + i + ')">' + i + '</a></li>');
+				}
+
+				if (page < max) {
+					$(".mui-pagination").append('<li class="mui-previous"><a href="javascript:fresh(' + (page + 1) +
+						')">&raquo;</a></li>');
+
+				}
+
+				$("#foot").show();
+
+			}
+
+			function showDetailPage(id) {
+
+				detailView = mui.openWindow({
+					url: "./book_details.html",
+					extras: {
+						'bid': id,
+						createNew: true
+					}
+				})
+
+				console.log(id)
+				detailView.show();
+			}
+		</script>
+
+		<style type="text/css">
+			#content {
+				position: relative;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+			}
+
+			.book {
+				display: inline-block;
+				width: 48%;
+				height: 230px;
+				margin: 0;
+				margin: 1%;
+			}
+
+			.book-cover {
+				width: 100%;
+				height: 100%;
+				background: url(../images/nocover.png) center no-repeat;
+				background-size: 100% 100%;
+			}
+
+			.book-title {
+				position: absolute;
+				background-color: rgba(0, 0, 0, .7);
+				width: 100%;
+				height: 60px;
+				color: white;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
+				font-weight: 600;
+				bottom: 0;
+			}
+
+			#search-info {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-size: 15px;
+				font-weight: 400;
+				color: #a8a8a8;
+			}
+		</style>
+
+	</head>
+
+
+	<body>
+		<div class="title-bar-block">
+
+		</div>
+
+		<div class="title_bar" style="background-color: white;">
+			<a class="mui-icon mui-icon-back mui-action-back title-bar-a" style="left: 10px;"></a>
+			搜索结果
+		</div>
+
+		<div class="mui-card">
+
+			<div class="mui-card-header" style="width: 100%;text-align: center;" id="search-info">
+
+			</div>
+
+			<div class="mui-card-content" style="background-color: white;" id="content">
+				<div class="book mui-card" :onclick="'showDetailPage(' + info.id + ')'" :book-id="info.id"
+					v-for="info in infos">
+					<span class="book-title">{{info.title}}</span>
+					<img class="book-cover" :src="info.cover">
+				</div>
+			</div>
+
+
+
+		</div>
+
+		<div class="mui-card" id="foot" style="text-align: center;display: none;">
+			<div class="mui-content-padded">
+				<ul class="mui-pagination">
+
+					<li class="mui-previous mui-disabled">
+						<a href="#">
+							&laquo;
+						</a>
+					</li>
+
+					<li class="mui-active">
+						<a href="javascript:fresh(10)">
+							1
+						</a>
+					</li>
+
+					<li class="mui-next">
+						<a href="#">
+							&raquo;
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+
+
+
+
+
+	</body>
+
+
+</html>

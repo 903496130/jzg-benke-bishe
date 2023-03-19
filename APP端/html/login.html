@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>登录</title>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<style type="text/css">
+			body {
+				background-color: white;
+			}
+			.center {
+				position: absolute;
+				top: 40%;
+				width: 100%;
+				transform: translateY(-50%);
+				text-align: center;
+			}
+			.logo {
+				margin: auto;
+			}
+
+			.nickname {
+				display: none;
+			}
+		</style>
+		<script type="text/javascript">
+			mui.init({
+				beforeback: function() {
+					return false;
+				}
+			});
+			var mode = 1;
+
+			function change() {
+				if (mode == 1) {
+					mode = 0;
+					$(".nickname").show();
+					$(".change-btn").text("去登录");
+
+				} else {
+					mode = 1;
+					$(".nickname").hide();
+					$(".change-btn").text("去注册");
+				}
+			}
+
+			function confirm() {
+				username = $(".username").val();
+				password = $(".password").val();
+				password_rpt = $(".password-rpt").val();
+				nickname = $(".nick").val();
+
+				if (username && password) {
+					if (mode == 0) {
+						//注册
+						url = "http://39.106.51.168:8080/user/reg"
+						if (password != password_rpt) {
+							mui.toast('两次密码不一致', {
+								duration: 'long',
+								type: 'div'
+							});
+							return;
+						}
+						if (nickname == null || nickname == "") {
+							mui.toast('请输入昵称', {
+								duration: 'long',
+								type: 'div'
+							});
+							return;
+						}
+
+					} else {
+						//登录
+						url = "http://39.106.51.168:8080/user/login"
+					}
+					mui.get(url,{
+							"username":username,
+							"password":password,
+							"nickname":nickname
+						},function(data){
+							
+							mui.toast(data.msg, {
+								duration: 'long',
+								type: 'div'
+							});
+							
+							if(data.code == "1" && mode != 0){
+								localStorage.setItem("nickname",data.nickname);
+								localStorage.setItem("uid",data.uid);
+								localStorage.setItem("sign",data.sign);
+								localStorage.setItem("head",data.head);
+								plus.webview.currentWebview().close();
+							}
+							
+							
+						
+						},'json'
+					);
+
+				} else {
+					mui.toast('请检查输入', {
+						duration: 'long',
+						type: 'div'
+					});
+					return;
+				}
+
+
+
+
+
+			}
+		</script>
+
+	</head>
+	<body>
+		<div class="title-bar-block">
+		
+		</div>
+		
+		<div class="title_bar">
+			请登录
+		</div>
+
+		<form class="mui-input-group center">
+
+			<img class="logo" src="../images/logo2.png">
+
+			<div class="mui-input-row">
+				<label>用户名</label>
+				<input type="text" class="mui-input-clear username" placeholder="请输入用户名">
+			</div>
+			<div class="mui-input-row">
+				<label>密码</label>
+				<input type="password" class="mui-input-password password" placeholder="请输入密码">
+			</div>
+			<div class="mui-input-row nickname">
+				<label>重复密码</label>
+				<input type="password" class="mui-input-password password-rpt" placeholder="请输入密码">
+			</div>
+			<div class="mui-input-row nickname">
+				<label>昵称</label>
+				<input type="text" class="mui-input-clear nick" placeholder="请输入昵称">
+			</div>
+
+			<div class="mui-button-row ">
+				<button type="button" class="mui-btn mui-btn-primary" onclick="confirm()">确认</button>
+				<button type="button" class="mui-btn mui-btn-danger change-btn" onclick="change()">去注册</button>
+			</div>
+
+
+		</form>
+
+
+	</body>
+</html>

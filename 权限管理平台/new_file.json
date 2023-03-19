@@ -1,0 +1,38 @@
+header:
+{
+	"Content-Type": "application/json;charset=utf-8",
+	"TimeStamp": xxxxx,
+	"encrypt": xxxxx,
+	"source": xxxxx
+}
+body:
+{
+	"subId": subId
+}
+
+返回结果示例：
+{
+	"msg": "成功",
+	"code": 0,
+	"data": [{
+		"caller_show": "13018025475",
+		"alerting_time": "2021-05-08 17:58:08",
+		"called": "18141922142",
+		"recorder_id": "202105081757573837464922226",
+		"caller_area": "010 北京",
+		"begin_time": "2021-05-08 17:57:57",
+		"bill_duration": "6",
+		"called_area": "010 北京",
+		"call_duration": "6",
+		"call_cost": "0.0",
+		"extend": "{\"ext\":\"0000\",\"dtmf_time\":\"2021-05-08 17:58:07\",\"callout_time\":\"2021-05-08 17:58:07\",\"hangup\":1}",
+		"caller": "17610862037",
+		"called_show": "13018018478",
+		"connect_time": "2021-05-08 17:58:17",
+		"record_file_url": "http://reczj.1ketong.com:8090/audio26202/6916/20210508/202105081757573837464922226.mp3",
+		"call_result": "ANSWERED",
+		"ts": "1620467903",
+		"release_time": "2021-05-08 17:58:23"
+	}]
+}
+/callInfo/query / subId

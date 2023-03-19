@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Title</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+		<link rel="stylesheet" type="text/css" href="./css/layui.css" media="all" />
+		<script src="./js/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="./js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+
+		<style type="text/css">
+			body {
+
+				padding: 20px;
+				background-color: #F2F2F2;
+			}
+
+			.layui-card {
+				width: 100%;
+			}
+		</style>
+
+		<script type="text/javascript">
+			$(window).ready(function() {
+
+			});
+
+			function showAddPersonInfoPage() {
+				var layer = layui.layer;
+				layer.open({
+					type: 1,
+					content: $('#addData'),
+					end: function() {
+						$("#addData").hide();
+					}
+				});
+
+				layui.use('form', function() {
+					var form = layui.form;
+					//监听提交
+					form.on('submit(addData)', function(data) {
+						$.post('http://localhost/list/add', data.field, function(str) {
+							console.log(str.msg);
+							layer.open({
+								title: "结果",
+								content: str.msg
+							});
+						}, "json");
+
+						return false;
+					});
+				});
+			}
+
+			function query() {
+				erp = $("#erp").val();
+				list_type = $("#list_type").val() || -1;
+				device_type = $("#device_type").val() || -1;
+				console.log(erp, list_type, device_type);
+
+
+				layui.use('table', function() {
+
+					var table = layui.table;
+
+					//第一个实例
+					table.render({
+						elem: '#demo',
+						url: 'http://localhost/list/query',
+						where: {
+							'erp': erp,
+							'list_type': list_type,
+							'device_type': device_type
+						},
+						page: true,
+						cols: [
+							[{
+								type: 'checkbox',
+								fixed: 'left'
+							}, {
+								field: 'name',
+								title: '姓名',
+								fixed: 'left'
+							}, {
+								field: 'erp',
+								title: 'ERP',
+							}, {
+								field: 'mail_address',
+								title: '邮箱地址',
+							}, {
+								field: 'device_type',
+								title: '设备类型',
+							}, {
+								field: 'list_type',
+								title: '所处位置',
+							}, , {
+								fixed: 'right',
+								width: 150,
+								align: 'center',
+								toolbar: '#barDemo'
+							}]
+						]
+					});
+
+					table.on('tool(test)', function(obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+						var data = obj.data,
+
+							layEvent = obj.event; //获得 lay-event 对应的值
+
+						if (layEvent === 'edit') {
+							//编辑操作
+							layer.msg(data.erp);
+
+						} else if (layEvent === 'remove') {
+							layer.confirm('真的删除行么', function(index) {
+								obj.del();
+								$.post('http://localhost/list/remove', obj.data, function(str) {
+									console.log(str.msg);
+									layer.open({
+										title: "结果",
+										content: str.msg
+									});
+								}, "json");
+								layer.close(index);
+							});
+						}
+					});
+
+				});
+
+			}
+		</script>
+
+		<script type="text/html" id="barDemo">
+			<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+			<a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="remove">删除</a>
+		</script>
+
+	</head>
+	<body>
+		
+		
+		<blockquote class="layui-elem-quote layui-text">
+		  在这个页面中进行黑白名单的增/删/查找操作
+		</blockquote>
+
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body">
+				<form class="layui-form">
+					<div class="layui-form-item">
+
+						<label class="layui-form-label">ERP</label>
+						<div class="layui-input-inline">
+							<input type="text" name="title" placeholder="请输入ERP" autocomplete="off" class="layui-input"
+								id="erp">
+						</div>
+
+						<label class="layui-form-label">名单类型</label>
+						<div class="layui-input-inline">
+
+							<select name="city" id="list_type">
+								<option value=""></option>
+								<option value="0">黑名单</option>
+								<option value="1">白名单</option>
+							</select>
+
+						</div>
+
+						<label class="layui-form-label">设备类型</label>
+						<div class="layui-input-inline">
+
+							<select name="city" id="device_type">
+								<option value=""></option>
+								<option value="0">移动端</option>
+								<option value="1">Windows客户端</option>
+								<option value="2">MAC客户端</option>
+							</select>
+
+						</div>
+
+					</div>
+
+				</form>
+
+			</div>
+
+		</div>
+		
+		
+
+		<div class="layui-card">
+			<div class="layui-card-header">选择操作</div>
+			<div class="layui-card-body" style="text-align: center;padding: 10px;">
+
+				<button type="button" class="layui-btn layui-btn-normal" onclick="query()">条件查询</button>
+				<button type="button" class="layui-btn" onclick="showAddPersonInfoPage()">添加数据</button>
+				<button type="button" class="layui-btn layui-btn-warm">批量添加数据</button>
+
+			</div>
+
+		</div>
+
+
+		<div class="layui-card">
+			<div class="layui-card-header">数据展示</div>
+			<div class="layui-card-body">
+
+				<table id="demo" lay-filter="test"></table>
+
+			</div>
+		</div>
+
+		<div id="addData" class="layui-form" style="display: none">
+			<div class="layui-card">
+				<div class="layui-card-body">
+					<form class="layui-form" action="http://localhost/list/add">
+						<!-- 提示：如果你不想用form，你可以换成div等任何一个普通元素 -->
+						<div class="layui-form-item">
+							<label class="layui-form-label">ERP</label>
+							<div class="layui-input-inline">
+								<input type="text" name="erp" lay-verify="required" placeholder="请输入ERP"
+									autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">姓名</label>
+							<div class="layui-input-inline">
+								<input type="text" name="name" lay-verify="required" placeholder="请输入姓名"
+									autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">邮件地址</label>
+							<div class="layui-input-inline">
+								<input type="text" name="mail_address" lay-verify="required" placeholder="请输入邮箱地址"
+									autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">设备类型</label>
+							<div class="layui-input-inline">
+								<select name="device_type" id="device_type" lay-verify="required">
+									<option value="-1"></option>
+									<option value="0">移动端</option>
+									<option value="1">Windows客户端</option>
+									<option value="2">MAC客户端</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">名单类型</label>
+							<div class="layui-input-inline">
+								<select name="list_type" id="list_type" lay-verify="required">
+									<option value="-1"></option>
+									<option value="0">黑名单</option>
+									<option value="1">白名单</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<button class="layui-btn" lay-submit lay-filter="addData">立即提交</button>
+								<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+							</div>
+						</div>
+
+					</form>
+				</div>
+			</div>
+		</div>
+
+
+	</body>
+
+</html>

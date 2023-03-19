@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		
+		<title>详细信息</title>
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<script src="../js/loading.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="../css/loading.css" />
+		<script type="text/javascript">
+			var sc;
+
+			mui.init({
+				beforeback: function() {
+					plus.navigator.setStatusBarStyle("light"); //设置状态栏样式
+					plus.navigator.setStatusBarBackground('#426ab3'); //设置状态栏的颜色	
+					return true;
+				},
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function() {
+
+							uid = localStorage.getItem("uid");
+							console.log(uid);
+							mui.get('http://39.106.51.168:8080/sc/list?uid=' + uid, {
+								"length": 20
+							}, function(data) {
+								sc.infos = data.data;
+
+								if(data.data.length == 0){
+									$("#no-data").show();
+								}else{
+									mui.toast("共" + data.data.length + "条数据", {
+										duration: 'long',
+										type: 'div'
+									});
+								}
+								
+								
+							}, 'json');
+
+							mui('body').pullRefresh().endPulldown();
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					}
+				}
+			});
+
+			$(window).ready(function() {
+				sc = new Vue({
+					el: '#content',
+					data: {
+						infos: []
+					}
+				});
+			});
+
+			function showDetailPage(id) {
+				detailView = mui.openWindow({
+					url: "./book_details.html",
+					extras: {
+						'bid': id
+					}
+				})
+				console.log(id)
+				detailView.show();
+			}
+
+			function scRemove(id) {
+				uid = localStorage.getItem("uid");
+				mui.get('http://39.106.51.168:8080/sc/remove?bid=' + id + '&uid=' + uid, {}, function(
+					data) {
+					mui.toast(data.msg, {
+						duration: 'long',
+						type: 'div'
+					});
+				}, 'json');
+			}
+		</script>
+
+		<style type="text/css">
+			.back-icon {
+				width: 30px;
+				height: 30px;
+				position: absolute;
+				left: 0;
+				top: 0;
+				color: white;
+
+			}
+
+			.book-info {
+				height: 230px;
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			.book-info-cover-box {
+				display: inline-block;
+				width: 45%;
+				height: 230px;
+				overflow: hidden;
+				padding-top: 10%;
+				padding-bottom: 10%;
+				padding-left: 5%;
+				padding-right: 5%;
+			}
+
+			.book-info-cover-box img {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: url(../images/index/book.png) no-repeat center;
+				background-size: 100% 100%;
+			}
+
+			.book-info-text {
+				display: inline-block;
+				width: 55%;
+				height: 230px;
+				padding-top: 10%;
+				padding-bottom: 5%;
+			}
+
+			.book-info-text span {
+				display: block;
+				font-size: 13px;
+			}
+
+			.book-info-text-title {
+				font-size: 16px !important;
+				margin-bottom: 5px;
+				font-weight: 600;
+
+			}
+
+			.star {
+				width: 20px;
+			}
+
+			.mui-btn-block {
+				width: 30%;
+				display: inline-block;
+				margin-bottom: 0;
+				margin-left: 3px;
+				margin-right: 3px;
+			}
+
+			.comment-card {
+				background-color: white;
+				padding: 20px;
+				border: 1px solid #cde5d0;
+				border-radius: 2px;
+				overflow: hidden;
+			}
+
+			textarea {
+				border: 1px solid #c9cad0;
+				border-radius: 10px;
+				margin: 5%;
+				width: 90%;
+				background-color: #f6f9ff;
+			}
+		</style>
+
+
+	</head>
+	<body>
+
+		<div class="title-bar-block"></div>
+
+		<div class="title_bar" style="background-color: white;opacity: 1!important;">
+			<a class="mui-icon mui-icon-back mui-action-back title-bar-a" style="left: 10px;"></a>
+			收藏列表
+		</div>
+
+		<div id="content">
+			<div class="mui-card" v-for="info in infos" >
+				<div class="mui-card-content" :onclick="'showDetailPage(' + info.id + ')'">
+					<div class="book-info">
+						<span class="book-info-cover-box">
+							<img :src="info.cover" class="book-info-cover-box-pic">
+						</span>
+						<span class="book-info-text" id="bookInfo-head">
+							<span class="book-info-text-title">{{info.title}}</span>
+							<span>作者：{{info.author}}</span>
+							<span>年份：{{info.year}}</span>
+							<span>分类：{{info.type}}</span>
+							<span>出版社：{{info.publisher}}</span>
+							<span>isbn：{{info.isbn}}</span>
+						</span>
+					</div>
+				</div>
+
+				<div class="mui-card-footer">
+					<a></a>
+					<button type="button" :onclick="'scRemove(' + info.id + ')'" class="mui-btn mui-btn-danger"
+						style="float: right;width: 100px;">取消收藏</button>
+				</div>
+			</div>
+
+
+		</div>
+		
+		<div id="no-data" style="display: none;text-align: center;width: 100%;position: absolute;top: 300px;">
+			<img src="../images/nodata.png" style="width: 250px;height: auto">
+			<h4>这里空空如也～</h4>
+			
+		</div>
+		
+		<div class="title-bar-block">
+		
+		</div>
+		
+		
+
+
+
+
+
+	</body>
+</html>

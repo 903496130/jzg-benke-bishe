@@ -1,0 +1,220 @@
+.title_bar {
+	display: flex;
+	background-color: #426ab3!important;
+	width: 100%;
+
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	top: 0px;
+	z-index: 9999999;
+	color: white;
+	font-weight: 600!important;
+	box-shadow: -2px -1px 9px 1px #00000029;
+}
+.title-bar-a{
+	position: absolute;
+	left: 0px;
+}
+
+.title_bar,
+.title-bar-block {
+	height: 55px;
+}
+
+.title_bar>.search_bar {
+	width: 70%;
+	height: 60%;
+	display: inline-block;
+}
+
+.search_bar {
+	position: relative;
+	border-radius: 200px;
+	overflow: hidden;
+	background-color: white;
+
+}
+
+.search_bar>.search_bar_input {
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	border: none;
+}
+
+.search_bar>.search_bar_button {
+	display: flex;
+	position: absolute;
+	right: 10px;
+	width: 10%;
+	height: 100%;
+	top: 0;
+	justify-content: center;
+	align-items: center;
+	background: url(../images/search.png);
+	background-size: 80% 70%;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.title {
+	margin: 20px 15px 10px;
+	color: #6d6d72;
+	font-size: 15px;
+	padding-bottom: 51px;
+}
+
+
+.index-announcement,
+.index-last-update.index-right-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+
+.index-last-update {
+	background-color: #F0AD4E;
+}
+
+.index-announcement {
+	background-color: #8A6DE9;
+}
+
+.index-announcement,
+.index-last-update {
+	width: 48%;
+	border: none;
+	height: 60px;
+	color: white;
+	margin: 1%;
+	font-size: 17px;
+}
+
+.index-right-button {
+
+	position: absolute;
+	width: 48%;
+	height: 96%;
+	border: none;
+	top: 0;
+	right: 0;
+	margin: 1%;
+	background-color: #3f6358;
+	color: white;
+	font-size: 18px;
+
+}
+
+.index-button-icon {
+	height: 22px;
+	width: 22px;
+}
+
+.info-option-card {
+	position: relative;
+	width: 100%;
+	height: 50px;
+	background-color: white;
+		overflow: hidden;
+}
+
+.info-option-card-icon {
+	position: absolute;
+	height: 20px;
+	width: 20px;
+	left: 10px;
+
+}
+
+.info-option-card-text {
+	position: absolute;
+	color: #333333;
+	left: 40px;
+	width: 100px;
+	height: 30px;
+	line-height: 30px;
+}
+
+.info-option-card-number,
+.info-option-card-enter {
+	right: 10px;
+	width: 30px;
+	height: 20px;
+}
+
+.info-option-card-enter{
+	background: url(../images/person/enter.png) center;
+	background-size: 25px 20px;
+}
+
+.info-option-card-enderline {
+	position: absolute;
+	bottom: 0px;
+	height: 1px;
+	width: 100%;
+	left: 40px;
+	background-color: #cccccc;
+}
+
+.info-option-card-number,
+.info-option-card-enter,
+.info-option-card-icon,
+.info-option-card-text {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+}
+
+.info-user-info{
+	position: relative;
+	background-color: white;
+	height: auto;
+	width: 100%;
+	padding-top: 40px;
+	text-align: center;
+}
+
+.info-user-info-head{
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	top: -40px;
+	height: 80px;
+	width: 80px;
+	border-radius: 10000px;
+	padding: 3px;
+	border: 3px white solid;
+	
+}
+.info-user-info-id{
+	display: block;
+	text-align: center;
+	height: 30px;
+	width: 100%;
+	margin: auto;
+	font-weight: 1000;
+	font-size: 22px;
+	
+}
+
+.info-user-info-sign{
+	display: block;
+	width: 80%;
+	height: auto;
+	text-align: center;
+	margin: auto;
+	font-size: 12px;
+	color: #272727;
+}
+.info-user-info-sign,.info-user-info-id,.info-user-info-head{
+
+}
+
+
+.book-detail-cover-img{
+	width: 100%;
+	margin: auto;
+}

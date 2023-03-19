@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+
+		<title>归还确认</title>
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<link rel="stylesheet" type="text/css" href="../css/loading.css" />
+		<script src="../js/loading.js" type="text/javascript" charset="utf-8"></script>
+
+
+		<style type="text/css">
+			.book-info {
+				height: 230px;
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			.book-info-cover-box {
+				display: inline-block;
+				width: 45%;
+				height: 230px;
+				overflow: hidden;
+				padding-top: 10%;
+				padding-bottom: 10%;
+				padding-left: 5%;
+				padding-right: 5%;
+			}
+
+			.book-info-cover-box img {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: url(../images/index/book.png) no-repeat center;
+				background-size: 100% 100%;
+			}
+
+			.book-info-text {
+				display: inline-block;
+				width: 55%;
+				height: 230px;
+				padding-top: 10%;
+				padding-bottom: 5%;
+			}
+
+			.book-info-text span {
+				display: block;
+				font-size: 13px;
+			}
+
+			.book-info-text-title {
+				font-size: 16px !important;
+				margin-bottom: 5px;
+				font-weight: 600;
+
+			}
+
+			.mui-btn-block {
+				display: inline-block;
+				margin: 0;
+			}
+		</style>
+
+		<script type="text/javascript">
+			
+			var uid = localStorage.getItem("uid");
+			var bid;
+			var info;
+
+			mui.ready(function() {
+				var self = plus.webview.currentWebview();
+				bid = self.bid;
+				uid = self.uid;
+			});
+
+
+			$(window).ready(function() {
+				showLoading();
+				info = new Vue({
+					el: '#content',
+					data: {
+						data: {}
+					}
+				});
+
+				mui.get('http://39.106.51.168:8080/book/info', {
+					id: bid
+				}, function(data) {
+					info.data = data.data
+					hideLoading();
+				}, 'json');
+
+			})
+
+			function back() {
+				mui.get('http://39.106.51.168:8080/jy/change', {
+					uid: uid,
+					bid: bid,
+					status: "已取书，等待归还"
+				}, function(data) {
+					info.data = data.data
+					mui.toast(data.msg, {
+						duration: 'long',
+						type: 'div'
+					});
+					hideLoading();
+				}, 'json');
+
+			}
+		</script>
+
+	</head>
+
+	<body>
+
+
+		<div class="title-bar-block"></div>
+
+		<div class="title_bar" style="background-color: white;opacity: 1!important;">
+			<a class="mui-icon mui-icon-back mui-action-back title-bar-a" style="left: 10px;"></a>
+			借阅确认
+		</div>
+
+		<div class="mui-card">
+			<div class="mui-card-content">
+				<div class="book-info" id="content">
+					<span class="book-info-cover-box">
+						<img :src="data.cover" class="book-info-cover-box-pic">
+					</span>
+					<span class="book-info-text" id="bookInfo-head">
+						<span class="book-info-text-title">{{data.title}}</span>
+						<span>作者：{{data.author}}</span>
+						<span>年份：{{data.year}}</span>
+						<span>分类：{{data.type}}</span>
+						<span>出版社：{{data.publisher}}</span>
+						<span>isbn：{{data.isbn}}</span>
+					</span>
+				</div>
+			</div>
+
+		</div>
+
+
+		<div class="mui-card" style="padding: 0px;">
+			<button type="button" data-loading-text="加载中" id="action-btn" onclick="back()"
+				class="mui-btn mui-btn-block mui-btn-primary mui-btn">确认借阅</button>
+		</div>
+
+
+	</body>
+</html>

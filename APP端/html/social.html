@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<title>随笔</title>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+
+		<script type="text/javascript">
+			var list;
+			
+			mui.init({
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function(){
+							
+							mui.get('http://39.106.51.168:8080/comment/tj', {}, function(data) {
+								list.list = data.data;
+								mui('body').pullRefresh().endPulldown();
+							}, 'json');
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					},
+					up: {
+						height: 80, //可选.默认50.触发上拉加载拖动距离
+						auto: false, //可选,默认false.自动上拉加载一次
+						contentrefresh: "正在加载...", //可选，正在加载状态时，上拉加载控件上显示的标题内容
+						contentnomore: '没有更多数据了', //可选，请求完毕若没有更多数据时显示的提醒内容；
+						callback: function() {
+							mui.get('http://39.106.51.168:8080/comment/tj', {}, function(data) {
+								list.list = list.list.concat(data.data);
+								mui('body').pullRefresh().endPullupToRefresh();
+							}, 'json');
+							
+						}
+					}
+				}
+			});
+
+
+			mui.ready(function() {
+
+			});
+			$(window).ready(function() {
+				
+				list = new Vue({
+					el: '#content',
+					data: {
+						list: []
+					}
+				});
+
+
+			});
+
+			function showDetailPage(id) {
+
+				detailView = mui.openWindow({
+					url: "./book_details.html",
+					extras: {
+						'bid': id
+					}
+				})
+				console.log(id);
+				detailView.show();
+			}
+		</script>
+
+	</head>
+
+
+	<body>
+		<div class="title-bar-block">
+
+		</div>
+
+		<div class="title_bar" style="background-color: white;">
+			TA的随笔
+		</div>
+		
+		<div id="content">
+			
+			<div class="mui-card" v-for="info in list" :bookid="info.bid" :onclick="'showDetailPage(' + info.bid + ')'">
+				
+				<div class="mui-card-header mui-card-media">
+					<img :src="info.head">
+					<div class="mui-media-body">
+						{{info.nickname}}
+						<p>发表于 {{info.date}}</p>
+					</div>
+				</div>
+				<div class="mui-card-content">
+					<div class="mui-card-content-inner">
+						{{info.content}}
+					</div>
+				
+				</div>
+				<div class="mui-card-footer">
+					<a>发表于《{{info.title}}》下</a>
+					<!-- <a class="mui-card-link">点赞({{info.zan}})</a> -->
+				</div>
+			</div>
+			
+		</div>
+
+
+
+
+		
+		
+
+	</body>
+
+
+</html>

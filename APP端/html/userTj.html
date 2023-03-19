@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+
+		<title>归还确认</title>
+		<script src="../js/jquery-3.6.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../css/mine.css" />
+		<link rel="stylesheet" type="text/css" href="../css/loading.css" />
+		<script src="../js/loading.js" type="text/javascript" charset="utf-8"></script>
+		<meta name="referrer" content="never">
+		<style type="text/css">
+			.user-card {
+				display: flex;
+				border-bottom: 1px solid #9f9da1;
+				height: 80px;
+
+			}
+
+			.user-card-head {
+				width: 25%;
+				padding: 10px;
+				padd
+			}
+
+			.user-card-head-img {
+				height: 60px;
+				width: 60px;
+				border-radius: 10000px;
+				border: 2px solid #c9c7cb;
+			}
+
+			.user-card-info {
+				width: 60%;
+			}
+
+			.user-card-info-nickname {
+				height: 50%;
+				display: flex;
+				align-items: flex-end;
+				font-size: 19px;
+				width: 100%;
+				padding-bottom: 5px;
+				border-bottom: 1px solid #c0bec2;
+			}
+
+			.user-card-info-sign {
+				padding-top: 5px;
+				height: 50%;
+				width: 100%;
+			}
+
+
+
+			#content {
+				position: relative;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+			}
+
+			.book {
+				display: inline-block;
+				width: 48%;
+				height: 230px;
+				margin: 0;
+				margin: 1%;
+			}
+
+			.book-cover {
+				width: 100%;
+				height: 100%;
+				background: url(../images/nocover.png) center no-repeat;
+				background-size: 100% 100%;
+			}
+
+			.book-title {
+				position: absolute;
+				background-color: rgba(0, 0, 0, .7);
+				width: 100%;
+				height: 60px;
+				color: white;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
+				font-weight: 600;
+				bottom: 0;
+			}
+
+			#search-info {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-size: 15px;
+				font-weight: 400;
+				color: #a8a8a8;
+			}
+		</style>
+
+		<script type="text/javascript">
+			
+			var user;
+			var book;
+			
+			mui.init({
+				pullRefresh: {
+					container: "body", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+					down: {
+						style: 'circle', //必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+						color: '#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+						height: '50px', //可选,默认50px.下拉刷新控件的高度,
+						range: '65px', //可选 默认100px,控件可下拉拖拽的范围
+						offset: '60px', //可选 默认0px,下拉刷新控件的起始位置
+						auto: true, //可选,默认false.首次加载自动上拉刷新一次
+						callback: function() {
+
+							uid = localStorage.getItem("uid");
+
+							mui.get('http://39.106.51.168:8080/tj/user', {
+									uid: uid
+								},
+								function(data) {
+									book.datas = data.data;
+									user.datas = data.user;
+									book.show = true;
+									user.show = true;
+									mui('body').pullRefresh().endPulldown();
+								}, 'json');
+
+						} //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					}
+				}
+			});
+			
+			
+			function showDetailPage(id) {
+			
+				detailView = mui.openWindow({
+					url: "./book_details.html",
+					extras: {
+						'bid': id,
+						createNew: true
+					}
+				})
+			
+				console.log(id)
+				detailView.show();
+			}
+
+
+			$(window).ready(function() {
+
+				user = new Vue({
+					el: '#user',
+					data: {
+						datas: [],
+						show:false
+					}
+				});
+
+				book = new Vue({
+					el: '#book',
+					data: {
+						datas: [],
+						show :false
+					}
+				});
+
+
+			})
+		</script>
+	</head>
+	<body>
+
+		<div class="title-bar-block"></div>
+		<div class="title_bar" style="background-color: white;opacity: 1!important;">
+			<a class="mui-icon mui-icon-back mui-action-back title-bar-a" style="left: 10px;"></a>
+			TA们在看
+		</div>
+
+		<div class="mui-card" id="user" v-if="show">
+			<div class="mui-card-header">与您兴趣相似的用户</div>
+			<div class="mui-card-content">
+
+				<div class="user-card" v-for="data in datas">
+					
+					
+					<div class="user-card-head">
+						<img :src="data.head" class="user-card-head-img">
+					</div>
+
+					<div class="user-card-info">
+						
+						<div class="user-card-info-nickname">
+							{{data.nickname}}
+						</div>
+
+						<div class="user-card-info-sign">
+							{{data.sign}}
+						</div>
+						
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+
+
+
+		<div class="mui-card" id="book" v-if="show">
+
+			<div class="mui-card-header">
+				TA们在读
+			</div>
+
+			<div class="mui-card-content"  style="background-color: white;">
+				<div class="book mui-card" :onclick="'showDetailPage(' + data.id + ')'" :book-id="data.id"
+					v-for="data in datas">
+					<span class="book-title">{{data.title}}</span>
+					<img class="book-cover" :src="data.cover">
+				</div>
+			</div>
+		</div>
+
+
+	</body>
+</html>
